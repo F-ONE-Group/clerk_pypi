@@ -7,10 +7,10 @@ from pydantic import BaseModel
 from .models import ClerkCodePayload
 
 
-def clerk_code(**custom_kwargs):
+def clerk_code():
     def wrapper(func):
         @wraps(func)
-        @flow(**custom_kwargs)
+        @flow(persist_result=False, log_prints=True, result_serializer="json")
         def wrapped_flow(payload: Dict):
 
             payload = ClerkCodePayload(**payload)
