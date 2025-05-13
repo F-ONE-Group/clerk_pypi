@@ -3,6 +3,7 @@ from typing import Dict
 from prefect import flow
 from functools import wraps
 from prefect.states import Completed
+from pydantic import BaseModel
 from .models import ClerkCodePayload
 
 
@@ -15,6 +16,9 @@ def clerk_code(**custom_kwargs):
             payload = ClerkCodePayload(**payload)
 
             result = func(payload)
+
+            if isinstance(result, BaseModel):
+                result = result.model_dump()
 
             return Completed(message=json.dumps(result), data=result)
 
