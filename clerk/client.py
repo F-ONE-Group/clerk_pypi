@@ -65,13 +65,10 @@ class Clerk(BaseModel):
     def get_request(
         self,
         endpoint: str,
-        headers: Optional[Dict[str, str]] = None,
-        json: Optional[Dict] = None,
-        params: Optional[Dict] = None,
+        headers: Dict[str, str] = {},
+        json: Dict = {},
+        params: Dict = {},
     ) -> StandardResponse:
-        headers = headers or {}
-        json = json or {}
-        params = params or {}
 
         merged_headers = {**self.headers, **headers}
         url = f"{self.base_url}{endpoint}"
@@ -94,13 +91,10 @@ class Clerk(BaseModel):
     def post_request(
         self,
         endpoint: str,
-        headers: Optional[Dict[str, str]] = None,
-        json: Optional[Dict] = None,
-        params: Optional[Dict] = None,
+        headers: Dict[str, str] = {},
+        json: Dict = {},
+        params: Dict = {},
     ) -> StandardResponse:
-        headers = headers or {}
-        json = json or {}
-        params = params or {}
 
         merged_headers = {**self.headers, **headers}
         url = f"{self.base_url}{endpoint}"
