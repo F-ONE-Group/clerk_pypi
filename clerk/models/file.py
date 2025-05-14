@@ -8,5 +8,6 @@ class ParsedFile(BaseModel):
     mimetype: Optional[str] = None
     content: str
 
+    @property
     def decode_content(self) -> bytes:
         return base64.b64decode(self.content.encode("utf-8"))
