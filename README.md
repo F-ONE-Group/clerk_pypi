@@ -1,6 +1,6 @@
 # CLERK
 
-`clerk` is a Python library designed to simplify interactions with the Clerk API. It provides a robust and user-friendly interface for managing documents, handling API requests, and integrating structured data models into your workflows. With built-in support for Prefect task flows and retry mechanisms, `clerk` is ideal for developers looking to streamline their integration with Clerk.
+`clerk-sdk` is a Python library designed to simplify interactions with the Clerk API. It provides a robust and user-friendly interface for managing documents, handling API requests, and integrating structured data models into your workflows. With built-in support for Prefect task flows and retry mechanisms, `clerk-sdk` is ideal for developers looking to streamline their integration with Clerk.
 
 ## Features
 
@@ -15,7 +15,7 @@
 Install the library using pip:
 
 ```bash
-pip install clerk
+pip install clerk-sdk
 ```
 
 ## Usage
