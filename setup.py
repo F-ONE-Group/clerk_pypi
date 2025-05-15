@@ -5,7 +5,7 @@ with open("./requirements.txt", "r") as f:
     requirements = f.readlines()
 
 setup(
-    name="clerk",
+    name="clerk-sdk",
     version="0.0.1",
     description="Library for interacting with Clerk",
     long_description=open("README.md").read(),
