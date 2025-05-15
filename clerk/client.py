@@ -1,5 +1,6 @@
 import os
-import logging
+
+# import logging
 import requests
 import backoff
 from typing import Dict, List, Optional, Self
@@ -12,20 +13,20 @@ from .models.file import ParsedFile
 from .models.response_model import StandardResponse
 
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+# logger = logging.getLogger(__name__)
+# logger.setLevel(logging.INFO)
 
-if not logger.handlers:
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter("[%(levelname)s] %(asctime)s - %(message)s")
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+# if not logger.handlers:
+#     handler = logging.StreamHandler()
+#     formatter = logging.Formatter("[%(levelname)s] %(asctime)s - %(message)s")
+#     handler.setFormatter(formatter)
+#     logger.addHandler(handler)
 
 
-def backoff_handler(details):
-    logger.warning(
-        f"Retrying {details['target'].__name__} after {details['tries']} tries..."
-    )
+# def backoff_handler(details):
+#     logger.warning(
+#         f"Retrying {details['target'].__name__} after {details['tries']} tries..."
+#     )
 
 
 def giveup_handler(e):
@@ -59,7 +60,7 @@ class Clerk(BaseModel):
         (requests.exceptions.RequestException,),
         max_tries=3,
         jitter=None,
-        on_backoff=backoff_handler,
+        # on_backoff=backoff_handler,
         giveup=giveup_handler,
     )
     def get_request(
@@ -73,7 +74,7 @@ class Clerk(BaseModel):
         merged_headers = {**self.headers, **headers}
         url = f"{self.base_url}{endpoint}"
 
-        logger.info(f"GET {url} | params={params}")
+        # logger.info(f"GET {url} | params={params}")
 
         response = requests.get(url, headers=merged_headers, json=json, params=params)
         response.raise_for_status()
@@ -85,7 +86,7 @@ class Clerk(BaseModel):
         (requests.exceptions.RequestException,),
         max_tries=3,
         jitter=None,
-        on_backoff=backoff_handler,
+        # on_backoff=backoff_handler,
         giveup=giveup_handler,
     )
     def post_request(
@@ -99,7 +100,7 @@ class Clerk(BaseModel):
         merged_headers = {**self.headers, **headers}
         url = f"{self.base_url}{endpoint}"
 
-        logger.info(f"POST {url} | body={json} | params={params}")
+        # logger.info(f"POST {url} | body={json} | params={params}")
 
         response = requests.post(url, headers=merged_headers, json=json, params=params)
         response.raise_for_status()
