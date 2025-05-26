@@ -1,0 +1,4 @@
+- "Answer" is for your answer to the user.
+- "Success" must be a boolean. Return True if you found what the user was looking for, and False if you did not.
+
+Make sure to return a valid JSON.

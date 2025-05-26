@@ -9,24 +9,11 @@ from xml.dom.minidom import Document
 
 from pydantic import BaseModel, model_validator, Field
 
+from clerk.exceptions.remote_device import RemoteDeviceAllocationError
+from clerk.models.remote_device import RemoteDevice
+
 from .models.file import ParsedFile
 from .models.response_model import StandardResponse
-
-
-# logger = logging.getLogger(__name__)
-# logger.setLevel(logging.INFO)
-
-# if not logger.handlers:
-#     handler = logging.StreamHandler()
-#     formatter = logging.Formatter("[%(levelname)s] %(asctime)s - %(message)s")
-#     handler.setFormatter(formatter)
-#     logger.addHandler(handler)
-
-
-# def backoff_handler(details):
-#     logger.warning(
-#         f"Retrying {details['target'].__name__} after {details['tries']} tries..."
-#     )
 
 
 def giveup_handler(e):
@@ -116,3 +103,25 @@ class Clerk(BaseModel):
         endpoint = f"/document/{document_id}/files"
         res = self.get_request(endpoint=endpoint)
         return [ParsedFile(**d) for d in res.data]
+
+    def allocate_remote_device(self, organization_id: str) -> RemoteDevice:
+        endpoint = f"/gui/remote_device/allocate?organization_id={organization_id}"
+        res = self.get_request(endpoint=endpoint)
+        if not res.data:
+            raise RemoteDeviceAllocationError("No remove device available.")
+
+        return RemoteDevice(**res.data[0])
+
+    def deallocate_remote_device(
+        self, organization_id: str, remote_device_id: str
+    ) -> None:
+        endpoint = f"/gui/remote_device/deallocate?organization_id={organization_id}&remote_device_id={remote_device_id}"
+        self.get_request(endpoint=endpoint)
+
+    def get_coordinates(self, payload: Dict) -> Dict:
+        endpoint = "/gui/action_model/get_coordinates"
+        res = self.post_request(endpoint=endpoint, json=payload)
+        return res.data
+
+    def verify_state(self):
+        endpoint = "/gui/vision/verify_state"
