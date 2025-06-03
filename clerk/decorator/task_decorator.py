@@ -30,19 +30,17 @@ def clerk_code():
 
             # 2. Execute function
             try:
-                if use_pickle:
-                    output = func(payload)
-                    if not isinstance(output, ClerkCodePayload):
-                        raise TypeError(
-                            "Function must return a ClerkCodePayload instance."
-                        )
+                output = func(payload)
+                if not isinstance(output, ClerkCodePayload):
+                    raise TypeError("Function must return a ClerkCodePayload instance.")
             except Exception as e:
                 output = e
 
             # 3. Always write to output.pkl
             try:
-                with open(output_pkl, "wb") as f:
-                    pickle.dump(output, f)
+                if use_pickle:
+                    with open(output_pkl, "wb") as f:
+                        pickle.dump(output, f)
             except Exception as e:
                 raise RuntimeError(f"Failed to write output pickle: {e}") from e
 
