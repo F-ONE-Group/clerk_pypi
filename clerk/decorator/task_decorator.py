@@ -40,7 +40,7 @@ def clerk_code():
             try:
                 if use_pickle:
                     with open(output_pkl, "wb") as f:
-                        if isinstance(e, Exception):
+                        if isinstance(output, Exception):
                             pickle.dump(output, f)
                         else:
                             pickle.dump(output.model_dump(mode="json"), f)
