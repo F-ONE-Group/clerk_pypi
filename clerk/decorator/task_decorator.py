@@ -36,11 +36,15 @@ def clerk_code():
             except Exception as e:
                 output = e
 
-            # 3. Always write to output.pkl
+            # 3. write to output.pkl
             try:
                 if use_pickle:
                     with open(output_pkl, "wb") as f:
-                        pickle.dump(output.model_dump(mode="json"), f)
+                        if isinstance(e, Exception):
+                            pickle.dump(output, f)
+                        else:
+                            pickle.dump(output.model_dump(mode="json"), f)
+
             except Exception as e:
                 raise RuntimeError(f"Failed to write output pickle: {e}") from e
 
