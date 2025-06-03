@@ -58,7 +58,6 @@ def process_document(payload):
 
 - Python 3.10+
 - Dependencies listed in `requirements.txt`:
-  - `prefect>=3.4.1`
   - `pydantic>2.0.0`
   - `backoff>2.0.0`
 
