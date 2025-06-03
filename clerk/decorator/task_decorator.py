@@ -12,7 +12,9 @@ def clerk_code():
         @wraps(func)
         def wrapper(payload: Optional[ClerkCodePayload] = None) -> ClerkCodePayload:
             # 1. Load payload from file if not provided
+            use_pickle = False
             if payload is None:
+                use_pickle = True
                 try:
                     with open(input_pkl, "rb") as f:
                         raw_data = pickle.load(f)
@@ -28,9 +30,12 @@ def clerk_code():
 
             # 2. Execute function
             try:
-                output = func(payload)
-                if not isinstance(output, ClerkCodePayload):
-                    raise TypeError("Function must return a ClerkCodePayload instance.")
+                if use_pickle:
+                    output = func(payload)
+                    if not isinstance(output, ClerkCodePayload):
+                        raise TypeError(
+                            "Function must return a ClerkCodePayload instance."
+                        )
             except Exception as e:
                 output = e
 
@@ -44,6 +49,7 @@ def clerk_code():
             # 4. Raise if error or return result
             if isinstance(output, Exception):
                 raise output
+
             return output
 
         return wrapper
