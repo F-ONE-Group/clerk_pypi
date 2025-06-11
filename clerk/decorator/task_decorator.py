@@ -46,7 +46,9 @@ def clerk_code():
                             pickle.dump(output.model_dump(mode="json"), f)
 
             except Exception as e:
-                raise RuntimeError(f"Failed to write output pickle: {e}") from e
+                output = RuntimeError(f"Failed to write output pickle: {str(e)}")
+                with open(output_pkl, "wb") as f:
+                    pickle.dump(output, f)
 
             # 4. Raise if error or return result
             if isinstance(output, Exception):
