@@ -6,7 +6,7 @@ with open("./requirements.txt", "r") as f:
 
 setup(
     name="clerk-sdk",
-    version="0.1.8",
+    version="0.1.9",
     description="Library for interacting with Clerk",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
