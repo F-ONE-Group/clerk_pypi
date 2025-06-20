@@ -26,10 +26,10 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires=">=3.12",
-    install_requires=core_requirements + gui_requirements,
-    # extras_require={
-    #     # "all": core_requirements + gui_requirements,
-    #     "gui-automation": gui_requirements,
-    # },
+    python_requires=">=3.10",
+    install_requires=core_requirements,
+    extras_require={
+        "all": core_requirements + gui_requirements,
+        "gui-automation": gui_requirements,
+    },
 )
