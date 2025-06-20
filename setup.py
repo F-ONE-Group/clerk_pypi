@@ -1,7 +1,8 @@
+from typing import List
 from setuptools import setup, find_packages
 
 
-def get_requirements(root_path: str):
+def get_requirements(root_path: str) -> List[str]:
     with open(f"{root_path}/requirements.txt") as f:
         return f.read().splitlines()
 
@@ -28,7 +29,7 @@ setup(
     python_requires=">=3.10",
     install_requires=core_requirements,
     extras_require={
-        "all": core_requirements + gui_requirements,
+        # "all": core_requirements + gui_requirements,
         "gui-automation": gui_requirements,
     },
 )
