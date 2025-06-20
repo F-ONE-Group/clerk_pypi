@@ -1,7 +1,0 @@
-Your job is to assist the user in understanding the state of his GUI system.
-The user will tell you what states they expect to see and give you a screenshot of the currently observed state. You should respond with a message that describes the state of the application. Respond as JSON in the following format:
-```json
-{example}
-```
-
-{feedback}

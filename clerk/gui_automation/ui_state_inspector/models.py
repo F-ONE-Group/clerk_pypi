@@ -1,6 +1,5 @@
 from pydantic import BaseModel, model_validator
 from typing import List, Dict, Optional
-from ..utils.s3_utils import create_presigned_s3_url
 
 
 class BaseState(BaseModel):
@@ -26,15 +25,6 @@ class BaseState(BaseModel):
 
     def add_screenshot(self, bucket_name: str, file_name: str):
         self.screenshots.append({"bucket_name": bucket_name, "file_name": file_name})
-
-    def get_screenshots_urls(self):
-        return [
-            create_presigned_s3_url(
-                bucket_name=screenshot["bucket_name"],
-                object_name=screenshot["file_name"],
-            )
-            for screenshot in self.screenshots
-        ]
 
 
 class LoadingState(BaseState):

@@ -6,7 +6,7 @@ from typing import Callable, Union
 from websockets.asyncio.client import connect, ClientConnection
 from websockets.protocol import State
 
-from clerk import Clerk
+from clerk.gui_automation.client import RPAClerk
 from clerk.models.remote_device import RemoteDevice
 from clerk.decorator.models import ClerkCodePayload
 from ..exceptions.websocket import WebSocketConnectionFailed
@@ -15,18 +15,18 @@ from ..exceptions.websocket import WebSocketConnectionFailed
 # Global handle to the live connection (if any)
 global_ws: Union[ClientConnection, None] = None
 
-clerk_client = Clerk()
+clerk_client = RPAClerk()
 wss_uri = "wss://agent-manager.f-one.group/action"
 
 
-def _allocate_remote_device(clerk_client: Clerk, group_name: str) -> RemoteDevice:
+def _allocate_remote_device(clerk_client: RPAClerk, group_name: str) -> RemoteDevice:
     remote_device = clerk_client.allocate_remote_device(organization_id=group_name)
     os.environ["REMOTE_DEVICE_ID"] = remote_device.id
     os.environ["REMOTE_DEVICE_NAME"] = remote_device.name
     return remote_device
 
 
-def _deallocate_target(clerk_client: Clerk, group_name: str, remote_device_id: str):
+def _deallocate_target(clerk_client: RPAClerk, group_name: str, remote_device_id: str):
     clerk_client.deallocate_remote_device(
         organization_id=group_name, remote_device_id=remote_device_id
     )

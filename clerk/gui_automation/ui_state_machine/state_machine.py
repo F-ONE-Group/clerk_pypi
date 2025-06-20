@@ -1,3 +1,4 @@
+import os
 import networkx as nx  # type: ignore
 import functools
 import inspect
@@ -25,6 +26,7 @@ from ..ui_state_machine.models import ActionString
 from .ai_recovery import CourseCorrector, course_corrector_v1
 from ..client_actor.exception import PerformActionException
 from ..ui_state_inspector.gui_vision import Vision
+from ...client import Clerk
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -82,6 +84,9 @@ class ScreenPilot:
     _runtime_error_details: Optional[Tuple[str, str, str]] = None
     _state_history: Deque[str] = deque(maxlen=25)
     _transition_history: Deque[Callable] = deque(maxlen=25)
+    _clerk_client: Clerk = Clerk(
+        base_url=os.getenv("CLERK_BASE_URL", "https://api.clerk-app.com")
+    )
 
     @classmethod
     def register_state(

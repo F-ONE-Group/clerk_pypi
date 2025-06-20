@@ -1,4 +1,0 @@
-- You can chain multiple anchors to the action string if needed: LeftClick("Abbrechen").below("Action").right("OK").do()
-- Make sure to use multiple anchors if your text target might be ambiguous on the presented screen.
-- Don't forget the .do() method at the end of each call
-- You may only return one action string at once.

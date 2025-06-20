@@ -1,3 +1,0 @@
-Important rules to get this right:
-- Always return only one word as the target or anchor.
-- Use one of these relations: below, above, left, right.
