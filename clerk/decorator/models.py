@@ -17,3 +17,4 @@ class Document(BaseModel):
 class ClerkCodePayload(BaseModel):
     document: Document
     structured_data: Dict
+    run_id: Optional[str] = None

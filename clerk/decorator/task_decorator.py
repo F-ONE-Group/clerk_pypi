@@ -1,3 +1,4 @@
+import os
 import pickle
 from typing import Callable, Optional
 from functools import wraps
@@ -12,6 +13,7 @@ def clerk_code():
         @wraps(func)
         def wrapper(payload: Optional[ClerkCodePayload] = None) -> ClerkCodePayload:
             # 1. Load payload from file if not provided
+            os.environ["RUN_ID"] = payload.run_id if payload else "unknown"
             use_pickle = False
             if payload is None:
                 use_pickle = True
