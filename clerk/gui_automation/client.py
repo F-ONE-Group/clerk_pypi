@@ -24,11 +24,15 @@ class RPAClerk(BaseClerk):
 
         return RemoteDevice(**res.data[0])
 
-    def deallocate_remote_device(self, group_name: str, remote_device_id: str):
+    def deallocate_remote_device(
+        self,
+        remote_device: RemoteDevice,
+        run_id: str,
+    ):
         endpoint = "/remote_device/deallocate"
         self.post_request(
             endpoint=endpoint,
-            json={"group_name": group_name, "remote_device_id": remote_device_id},
+            json={"id": remote_device.id, "name": remote_device.name, "run_id": run_id},
         )
 
     def get_coordinates(self, payload: Dict) -> Coords:

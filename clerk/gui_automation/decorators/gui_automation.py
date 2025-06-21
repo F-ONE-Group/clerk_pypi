@@ -19,19 +19,19 @@ clerk_client = RPAClerk()
 wss_uri = "wss://agent-manager.f-one.group/action"
 
 
-def _allocate_remote_device(clerk_client: RPAClerk, group_name: str) -> RemoteDevice:
-    remote_device = clerk_client.allocate_remote_device(organization_id=group_name)
-    os.environ["REMOTE_DEVICE_ID"] = remote_device.id
-    os.environ["REMOTE_DEVICE_NAME"] = remote_device.name
+def _allocate_remote_device(
+    clerk_client: RPAClerk, group_name: str, run_id: str
+) -> RemoteDevice:
+    remote_device = clerk_client.allocate_remote_device(
+        group_name=group_name, run_id=run_id
+    )
     return remote_device
 
 
-def _deallocate_target(clerk_client: RPAClerk, group_name: str, remote_device_id: str):
-    clerk_client.deallocate_remote_device(
-        organization_id=group_name, remote_device_id=remote_device_id
-    )
-    os.environ.pop("REMOTE_DEVICE_ID", None)
-    os.environ.pop("REMOTE_DEVICE_NAME", None)
+def _deallocate_target(
+    clerk_client: RPAClerk, remote_device: RemoteDevice, run_id: str
+):
+    clerk_client.deallocate_remote_device(remote_device=remote_device, run_id=run_id)
 
 
 def gui_automation(group_name: str):
@@ -45,7 +45,7 @@ def gui_automation(group_name: str):
 
     async def connect_to_ws(uri: str) -> ClientConnection:
         # Same knobs as before, just via the new connect()
-        return await connect(uri, max_size=2**23, ping_timeout=3600)  # UPDATED
+        return await connect(uri, max_size=2**23, ping_timeout=3600)
 
     async def close_ws_connection(ws_conn: ClientConnection):
         await ws_conn.close()
@@ -54,9 +54,9 @@ def gui_automation(group_name: str):
         @functools.wraps(func)
         def wrapper(payload: ClerkCodePayload, *args, **kwargs):
             global global_ws
-            os.environ["PROC_ID"] = payload.instance_id
-
-            remote_device = _allocate_remote_device(clerk_client, group_name)
+            remote_device = _allocate_remote_device(
+                clerk_client, group_name, payload.run_id
+            )
 
             # Create a dedicated loop for the WebSocket work
             event_loop = asyncio.new_event_loop()
@@ -71,7 +71,7 @@ def gui_automation(group_name: str):
                 )
                 global_ws = event_loop.run_until_complete(task)
 
-                if global_ws and global_ws.state is State.OPEN:  # UPDATED
+                if global_ws and global_ws.state is State.OPEN:
                     print("WebSocket connection established.")
                     func_ret = func(payload, *args, **kwargs)
                 else:
@@ -81,10 +81,9 @@ def gui_automation(group_name: str):
             except Exception:
                 raise  # unchanged
             finally:
-                os.environ.pop("PROC_ID", None)
-                _deallocate_target(clerk_client, group_name, remote_device.id)
+                _deallocate_target(clerk_client, remote_device, payload.run_id)
 
-                if global_ws and global_ws.state is State.OPEN:  # UPDATED
+                if global_ws and global_ws.state is State.OPEN:
                     close_task = event_loop.create_task(close_ws_connection(global_ws))
                     event_loop.run_until_complete(close_task)
                     print("WebSocket connection closed.")
