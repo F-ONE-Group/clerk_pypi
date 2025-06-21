@@ -3,6 +3,7 @@ import os
 from typing import Optional
 from backoff._typing import Details
 
+from clerk.utils.save_artifact import save_artifact
 from ..client_actor import get_screen
 from ..ui_actions.base import BaseAction
 
@@ -23,25 +24,12 @@ def save_screenshot(filename: str, sub_folder: Optional[str] = None) -> str:
 
     """
     # get the base64 screen from target environment
-    screen_64 = get_screen()
-    # TODO: implement new system for save and provided metadata at processor run instance level
-
-
-def _format_action_string(action: BaseAction) -> str:
-    """
-    Formats action in the same format as the one used in task modules.
-    """
-    action_string = (
-        f"{action.__class__.__name__}(target='{action.target_name or action.target}')"
+    screen_b64: str = get_screen()
+    return save_artifact(
+        filename=filename,
+        file_bytes=screen_b64.encode("utf-8"),
+        subfolder=sub_folder,
     )
-    for anchor in action.anchors:
-        action_string += f".{anchor.relation}('{anchor.value}')"
-    if action.click_offset != [0, 0]:
-        action_string += (
-            f".offset(x={action.click_offset[0]}, y={action.click_offset[1]})"
-        )
-    action_string += ".do()"
-    return action_string
 
 
 def maybe_engage_operator_ui_action(details: Details) -> None:
