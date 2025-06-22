@@ -19,7 +19,6 @@ import backoff
 
 from .model import PerformActionResponse, ActionStates
 from .exception import PerformActionException, GetScreenError
-from ..decorators.gui_automation import global_ws
 
 
 async def _perform_action_ws(payload: Dict) -> PerformActionResponse:
@@ -34,6 +33,9 @@ async def _perform_action_ws(payload: Dict) -> PerformActionResponse:
     Raises:
         RuntimeError: If the ACK message is not received within the specified timeout.
     """
+
+    from ..decorators.gui_automation import global_ws
+
     # 1. Send the payload request
     if global_ws:
         await global_ws.send(json.dumps(payload))
@@ -102,14 +104,11 @@ def get_screen() -> str:
         RuntimeError: If the request to the VDI screen fails.
     """
 
-    if global_ws:
-        loop = asyncio.get_event_loop()
-        # asyncio.set_event_loop(loop)
-        task = loop.create_task(_get_screen_async())
-        res = loop.run_until_complete(task)
-        return res
-    else:
-        raise RuntimeError("The Websocket has not been initiated.")
+    loop = asyncio.get_event_loop()
+    # asyncio.set_event_loop(loop)
+    task = loop.create_task(_get_screen_async())
+    res = loop.run_until_complete(task)
+    return res
 
 
 async def _perform_action_async(
@@ -173,10 +172,7 @@ def perform_action(
         Any
     """
 
-    if global_ws:
-        loop = asyncio.get_event_loop()
-        task = loop.create_task(_perform_action_async(payload))
-        res = loop.run_until_complete(task)
-        return res
-
-    raise RuntimeError("The Websocket has not been initiated.")
+    loop = asyncio.get_event_loop()
+    task = loop.create_task(_perform_action_async(payload))
+    res = loop.run_until_complete(task)
+    return res

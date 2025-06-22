@@ -1,5 +1,6 @@
 import asyncio
 import functools
+import logging
 import os
 from typing import Callable, Union
 
@@ -25,6 +26,8 @@ def _allocate_remote_device(
     remote_device = clerk_client.allocate_remote_device(
         group_name=group_name, run_id=run_id
     )
+    os.environ["REMOTE_DEVICE_ID"] = remote_device.id
+    os.environ["REMOTE_DEVICE_NAME"] = remote_device.name
     return remote_device
 
 
@@ -32,6 +35,8 @@ def _deallocate_target(
     clerk_client: RPAClerk, remote_device: RemoteDevice, run_id: str
 ):
     clerk_client.deallocate_remote_device(remote_device=remote_device, run_id=run_id)
+    os.environ.pop("REMOTE_DEVICE_ID", None)
+    os.environ.pop("REMOTE_DEVICE_NAME", None)
 
 
 def gui_automation(group_name: str):
@@ -54,6 +59,8 @@ def gui_automation(group_name: str):
         @functools.wraps(func)
         def wrapper(payload: ClerkCodePayload, *args, **kwargs):
             global global_ws
+            os.environ["PROC_ID"] = payload.run_id
+
             remote_device = _allocate_remote_device(
                 clerk_client, group_name, payload.run_id
             )
@@ -72,14 +79,15 @@ def gui_automation(group_name: str):
                 global_ws = event_loop.run_until_complete(task)
 
                 if global_ws and global_ws.state is State.OPEN:
-                    print("WebSocket connection established.")
+                    logging.debug("WebSocket connection established.")
                     func_ret = func(payload, *args, **kwargs)
                 else:
                     global_ws = None
                     raise WebSocketConnectionFailed()
 
-            except Exception:
-                raise  # unchanged
+            except Exception as e:
+                os.environ.pop("PROC_ID", None)
+                raise
             finally:
                 _deallocate_target(clerk_client, remote_device, payload.run_id)
 
