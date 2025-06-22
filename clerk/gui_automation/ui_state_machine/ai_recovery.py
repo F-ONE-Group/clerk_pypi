@@ -74,7 +74,7 @@ class CourseCorrectorV1(CourseCorrector):
         """
         screen_b64 = get_screen()
         action_string = self.clerk_client.get_corrective_actions(
-            screen_b64, self.use_ocr, self.custom_instructions
+            screen_b64, self.use_ocr, self.goal, self.custom_instructions
         )
         assert isinstance(action_string, ActionString)
         return [action_string]

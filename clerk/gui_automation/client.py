@@ -122,7 +122,11 @@ class CourseCorrectorClerk(BaseClerk):
     root_endpoint: str = "/gui_automation/course_corrector"
 
     def get_corrective_actions(
-        self, screen_b64: str, use_ocr: str, custom_instructions: Optional[str] = None
+        self,
+        screen_b64: str,
+        use_ocr: str,
+        goal: str,
+        custom_instructions: Optional[str] = None,
     ) -> ActionString:
         endpoint = "/get_corrective_actions"
         res = self.post_request(
@@ -130,6 +134,7 @@ class CourseCorrectorClerk(BaseClerk):
             json={
                 "screen_b64": screen_b64,
                 "use_ocr": use_ocr,
+                "goal": goal,
                 "custom_instructions": custom_instructions,
             },
         )
