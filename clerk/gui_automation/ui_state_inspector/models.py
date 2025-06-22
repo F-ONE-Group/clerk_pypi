@@ -1,4 +1,4 @@
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, field_validator, model_validator
 from typing import List, Dict, Optional
 
 
@@ -135,7 +135,7 @@ class TargetWithAnchor(BaseModel):
     anchor: str = ""
     relation: str = ""
 
-    @model_validator("target", mode="before")
+    @field_validator("target", mode="before")
     @classmethod
     def retain_one_word(cls, v):
         return v.split(" ")[-1]
@@ -172,7 +172,7 @@ class ActionString(BaseModel):
     action_string: str
     comment: Optional[str] = None
 
-    @model_validator("action_string", mode="before")
+    @field_validator("action_string", mode="before")
     @classmethod
     def ensure_format(cls, v):
         if not isinstance(v, str):

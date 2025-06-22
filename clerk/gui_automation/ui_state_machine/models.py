@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, field_validator, model_validator
 
 
 class ActionString(BaseModel):
@@ -22,7 +22,7 @@ class ActionString(BaseModel):
     observation: Optional[str] = None
     interrupt_process: Optional[bool] = False
 
-    @model_validator("action_string", mode="before")
+    @field_validator("action_string", mode="before")
     @classmethod
     def ensure_format(cls, v):
         if not isinstance(v, str):
@@ -31,7 +31,7 @@ class ActionString(BaseModel):
             raise ValueError("Action string must end with '.do()'")
         return v
 
-    @model_validator("interrupt_process", mode="before")
+    @field_validator("interrupt_process", mode="before")
     def convert_to_bool(cls, v):
         if v is None:
             return False
