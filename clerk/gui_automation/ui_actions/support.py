@@ -1,11 +1,32 @@
-from distutils.util import strtobool
 import os
 from typing import Optional
 from backoff._typing import Details
 
 from clerk.utils.save_artifact import save_artifact
 from ..client_actor import get_screen
-from ..ui_actions.base import BaseAction
+
+
+_MAP = {
+    "y": True,
+    "yes": True,
+    "t": True,
+    "true": True,
+    "on": True,
+    "1": True,
+    "n": False,
+    "no": False,
+    "f": False,
+    "false": False,
+    "off": False,
+    "0": False,
+}
+
+
+def strtobool(value):
+    try:
+        return _MAP[str(value).lower()]
+    except KeyError:
+        raise ValueError('"{}" is not a valid bool value'.format(value))
 
 
 def save_screenshot(filename: str, sub_folder: Optional[str] = None) -> str:
@@ -40,7 +61,7 @@ def maybe_engage_operator_ui_action(details: Details) -> None:
     :raises: The exception raised by the action if the issue is not resolved within the allotted time
     """
     # Determine if the operator should be engaged
-    use_operator = bool(strtobool(os.getenv("USE_OPERATOR", default="False")))
+    use_operator = strtobool(os.getenv("USE_OPERATOR", default="False"))
     if not use_operator:
         raise details["exception"]  # type: ignore
 
