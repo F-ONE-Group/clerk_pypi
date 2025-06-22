@@ -299,7 +299,6 @@ class SendKeys(BaseAction):
     interval: float = 0.05
 
     @model_validator(mode="after")
-    @classmethod
     def validate_keys(self) -> Self:
         if isinstance(self.keys, list) and not self.key_separator:
             raise ValueError(

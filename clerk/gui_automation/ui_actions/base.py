@@ -104,7 +104,6 @@ class BaseAction(BaseModel):
     widget_bbox: Optional[Coords] = None
 
     @model_validator(mode="after")
-    @classmethod
     def validate_target_and_set_name(self) -> Self:
         target = self.target
         if isinstance(target, str):  # either text target or img path
