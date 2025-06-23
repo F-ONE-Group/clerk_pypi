@@ -194,7 +194,7 @@ class BaseAction(BaseModel):
     def _is_path(value: str) -> bool:
         if not os.path.isfile(value):
             return os.path.isfile(value) or os.path.isfile(
-                value.replace(IMAGE_PATH, ALTERNATIVE_IMAGE_PATH)
+                value.replace(TARGET_IMAGES_PATH)
             )
         return True
 
