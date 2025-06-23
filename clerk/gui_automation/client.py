@@ -38,7 +38,10 @@ class RPAClerk(BaseClerk):
     def get_coordinates(self, payload: Dict) -> Coords:
         endpoint = "/action_model/get_coordinates"
         res = self.post_request(endpoint=endpoint, json=payload)
-        return Coords(**res.data[0])
+        if res.status_code == 200:
+            if res.data[0] is None:
+                raise RuntimeError("No coordinates found in the response.")
+            return Coords(**res.data[0])
 
 
 class GUIVisionClerk(BaseClerk):
