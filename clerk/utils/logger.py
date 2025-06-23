@@ -1,8 +1,5 @@
 import os
 import logging
-import requests
-
-from typing import Union, List
 
 
 def debug(message: str):
