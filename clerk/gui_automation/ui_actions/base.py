@@ -11,8 +11,7 @@ from ..action_model.model import (
 import os
 
 ModalityType = Union[Literal["icon"], Literal["text"]]
-IMAGE_PATH = os.path.join(os.getcwd(), "action", "targets")
-ALTERNATIVE_IMAGE_PATH = os.path.join(os.getcwd(), "task", "targets")
+TARGET_IMAGES_PATH = os.path.join(os.getcwd(), "targets")
 
 
 def to_full_img_path(img: Union[str, ImageB64]) -> str:
@@ -22,7 +21,7 @@ def to_full_img_path(img: Union[str, ImageB64]) -> str:
     """
     if isinstance(img, ImageB64):
         return ""
-    return os.path.join(IMAGE_PATH, img)
+    return os.path.join(TARGET_IMAGES_PATH, img)
 
 
 ActionTypes = Literal[
