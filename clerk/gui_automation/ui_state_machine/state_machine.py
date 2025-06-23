@@ -283,7 +283,7 @@ class ScreenPilot:
         cls._log_state(cls._current_state)
         cls._acted_since_state_eval = False
         try:
-            screenshot_and_log(f"State: {cls._current_state}")
+            screenshot_and_log(f"State_{cls._current_state}")
         except Exception as e:
             logger.warning("Error occurred while taking and saving screenshot")
             logger.warning(f"Details: {str(e)}")
