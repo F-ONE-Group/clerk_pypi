@@ -1,6 +1,5 @@
 import os
 
-# import logging
 import requests
 import backoff
 from typing import Dict, Optional, Self

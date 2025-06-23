@@ -2,7 +2,6 @@ import os
 import networkx as nx  # type: ignore
 import functools
 import inspect
-import logging
 from collections import deque
 from pydantic import BaseModel, ValidationError
 from typing import List, Tuple, Callable, Optional, Deque, Literal, Union
@@ -27,15 +26,7 @@ from .ai_recovery import CourseCorrector, course_corrector_v1
 from ..client_actor.exception import PerformActionException
 from ..ui_state_inspector.gui_vision import Vision
 from ...client import Clerk
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-
-if not logger.handlers:
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter("[%(levelname)s] %(asctime)s - %(message)s")
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+from ...utils import logger
 
 
 class ScreenPilot:

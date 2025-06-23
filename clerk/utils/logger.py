@@ -1,3 +1,4 @@
+import inspect
 import os
 import logging
 
@@ -80,8 +81,9 @@ def _log(level: str, message: str):
     # Define the log file path
     log_file_path = os.path.join(base_path, "logs.txt")
 
-    # Get the module name from where the logger is called
-    module = os.path.basename(__file__)
+    # Get the calling file (two levels up the stack)
+    frame = inspect.stack()[2]
+    module = os.path.basename(frame.filename)
 
     # Configure the logger
     logger = logging.getLogger(module)

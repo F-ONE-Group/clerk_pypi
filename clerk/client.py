@@ -1,4 +1,3 @@
-# import logging
 from typing import List
 from xml.dom.minidom import Document
 
