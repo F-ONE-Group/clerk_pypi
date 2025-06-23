@@ -53,6 +53,7 @@ class CourseCorrector(BaseModel):
 
 
 class CourseCorrectorV1(CourseCorrector):
+    name: str = "CourseCorrectorV1"
     use_ocr: bool = Field(
         default=True,
         description="Whether OCR of the screen should be included with in the model call (increases precision with "
