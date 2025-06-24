@@ -39,7 +39,7 @@ def _deallocate_target(
     os.environ.pop("REMOTE_DEVICE_NAME", None)
 
 
-def gui_automation(group_name: str):
+def gui_automation():
     """
     Decorator that:
       • Allocates a remote device,
@@ -47,6 +47,9 @@ def gui_automation(group_name: str):
       • Passes control to the wrapped function,
       • Cleans everything up afterwards.
     """
+    group_name: str = os.getenv("REMOTE_DEVICE_GROUP")
+    if not group_name:
+        raise ValueError("REMOTE_DEVICE_GROUP environmental variable is required.")
 
     async def connect_to_ws(uri: str) -> ClientConnection:
         # Same knobs as before, just via the new connect()
