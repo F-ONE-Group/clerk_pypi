@@ -18,7 +18,7 @@ def save_artifact(
     """
 
     # get the run ID from environment variable or default to "unknown"
-    run_id = os.getenv("RUN_ID", "unknown")
+    run_id = os.getenv("_RUN_ID", "unknown")
 
     # create the base path for artifacts
     base_path = os.path.join(os.getcwd(), "data", "output", "artifacts", run_id)

@@ -80,7 +80,7 @@ def _log(level: str, message: str):
 
     """
     # Get run_id from environment variable or default to "unknown"
-    run_id = os.getenv("RUN_ID", "unknown")
+    run_id = os.getenv("_RUN_ID", "unknown")
 
     # Create the base path for artifacts
     logs_path = os.path.join(base_path, run_id)
