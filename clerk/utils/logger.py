@@ -1,6 +1,14 @@
 import inspect
 import os
 import logging
+import sys
+
+if sys.platform == "win32":
+    base_path = os.path.join(os.getcwd(), "data", "output", "artifacts")
+else:
+    base_path = "/app/data/output/artifacts"
+
+os.makedirs(base_path, exist_ok=True)
 
 
 def debug(message: str):
@@ -75,11 +83,9 @@ def _log(level: str, message: str):
     run_id = os.getenv("RUN_ID", "unknown")
 
     # Create the base path for artifacts
-    base_path = os.path.join(os.getcwd(), "data", "output", "artifacts", run_id)
-    os.makedirs(base_path, exist_ok=True)
-
+    logs_path = os.path.join(base_path, run_id)
     # Define the log file path
-    log_file_path = os.path.join(base_path, "logs.txt")
+    log_file_path = os.path.join(logs_path, "logs.txt")
 
     # Get the calling file (two levels up the stack)
     frame = inspect.stack()[2]
