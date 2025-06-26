@@ -84,6 +84,7 @@ def _log(level: str, message: str):
 
     # Create the base path for artifacts
     logs_path = os.path.join(base_path, run_id)
+    os.makedirs(logs_path, exist_ok=True)
     # Define the log file path
     log_file_path = os.path.join(logs_path, "logs.txt")
 
