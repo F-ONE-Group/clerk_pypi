@@ -6,7 +6,7 @@ import sys
 if sys.platform == "win32":
     base_path = os.path.join(os.getcwd(), "data", "output", "artifacts")
 else:
-    base_path = "/app/data/output/artifacts"
+    base_path = "/app/data/artifacts"
 
 os.makedirs(base_path, exist_ok=True)
 

@@ -21,7 +21,7 @@ def save_artifact(
     run_id = os.getenv("_RUN_ID", "unknown")
 
     # create the base path for artifacts
-    base_path = os.path.join(os.getcwd(), "data", "output", "artifacts", run_id)
+    base_path = os.path.join(os.getcwd(), "data", "artifacts", run_id)
     if subfolder:
         base_path = os.path.join(base_path, subfolder)
 
