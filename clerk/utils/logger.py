@@ -100,7 +100,13 @@ def _log(level: str, message: str):
         formatter = logging.Formatter(format)
         fh.setFormatter(formatter)
         logger.addHandler(fh)
+        # → console handler  (same formatter)
+        sh = logging.StreamHandler(sys.stdout)
+        sh.setFormatter(formatter)
+        logger.addHandler(sh)
+
     logger.setLevel(logging.DEBUG)
+    logger.propagate = False  # keep root logger from printing duplicates
 
     # Log the message based on the level
     if level.lower() == "info":
