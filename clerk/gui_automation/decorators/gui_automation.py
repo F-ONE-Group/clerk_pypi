@@ -1,15 +1,20 @@
 import asyncio
 import functools
-import logging
 import os
+import time
 from typing import Callable, Union
 
 from websockets.asyncio.client import connect, ClientConnection
 from websockets.protocol import State
 
 from clerk.gui_automation.client import RPAClerk
+from clerk.gui_automation.exceptions.agent_manager import (
+    ClientAvailabilityTimeout,
+    NoClientsAvailable,
+)
 from clerk.models.remote_device import RemoteDevice
 from clerk.decorator.models import ClerkCodePayload
+from clerk.utils import logger
 from ..exceptions.websocket import WebSocketConnectionFailed
 
 
@@ -19,22 +24,43 @@ global_ws: Union[ClientConnection, None] = None
 clerk_client = RPAClerk()
 wss_uri = "wss://agent-manager.f-one.group/action"
 
+CLIENT_TIMEOUT_MINS = 1
+MAX_CLIENT_AVAILABILITY_RETRIES = 60
+
 
 def _allocate_remote_device(
     clerk_client: RPAClerk, group_name: str, run_id: str
 ) -> RemoteDevice:
-    remote_device = clerk_client.allocate_remote_device(
-        group_name=group_name, run_id=run_id
-    )
-    os.environ["REMOTE_DEVICE_ID"] = remote_device.id
-    os.environ["REMOTE_DEVICE_NAME"] = remote_device.name
-    return remote_device
+    remote_device = None
+    retries = 0
+
+    while True:
+        try:
+            remote_device = clerk_client.allocate_remote_device(
+                group_name=group_name, run_id=run_id
+            )
+        except NoClientsAvailable:
+            logger.warning(
+                f"No clients are available for {group_name} group. Initiating a {CLIENT_TIMEOUT_MINS} minute wait. Retry count: {retries}"
+            )
+            retries += 1
+            if retries == MAX_CLIENT_AVAILABILITY_RETRIES:
+                raise ClientAvailabilityTimeout(
+                    f"No clients available for {group_name} group after {CLIENT_TIMEOUT_MINS*MAX_CLIENT_AVAILABILITY_RETRIES} minutes"
+                )
+            time.sleep(CLIENT_TIMEOUT_MINS)
+
+        os.environ["REMOTE_DEVICE_ID"] = remote_device.id
+        os.environ["REMOTE_DEVICE_NAME"] = remote_device.name
+        logger.debug(f"Remote device allocated: {remote_device.name}")
+        return remote_device
 
 
 def _deallocate_target(
     clerk_client: RPAClerk, remote_device: RemoteDevice, run_id: str
 ):
     clerk_client.deallocate_remote_device(remote_device=remote_device, run_id=run_id)
+    logger.debug("Remote device deallocated")
     os.environ.pop("REMOTE_DEVICE_ID", None)
     os.environ.pop("REMOTE_DEVICE_NAME", None)
 
@@ -82,7 +108,7 @@ def gui_automation():
                 global_ws = event_loop.run_until_complete(task)
 
                 if global_ws and global_ws.state is State.OPEN:
-                    logging.debug("WebSocket connection established.")
+                    logger.debug("WebSocket connection established.")
                     func_ret = func(payload, *args, **kwargs)
                 else:
                     global_ws = None
@@ -97,7 +123,7 @@ def gui_automation():
                 if global_ws and global_ws.state is State.OPEN:
                     close_task = event_loop.create_task(close_ws_connection(global_ws))
                     event_loop.run_until_complete(close_task)
-                    print("WebSocket connection closed.")
+                    logger.debug("WebSocket connection closed.")
 
                 event_loop.run_until_complete(event_loop.shutdown_asyncgens())
                 event_loop.close()

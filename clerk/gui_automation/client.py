@@ -3,6 +3,7 @@ from typing import Dict, List, Optional
 from pydantic import BaseModel
 from clerk.base import BaseClerk
 from clerk.gui_automation.action_model.model import Coords
+from clerk.gui_automation.exceptions.agent_manager import NoClientsAvailable
 from clerk.gui_automation.ui_state_inspector.models import (
     ActionString,
     BaseState,
@@ -21,6 +22,9 @@ class RPAClerk(BaseClerk):
         res = self.post_request(
             endpoint=endpoint, json={"group_name": group_name, "run_id": run_id}
         )
+
+        if res.data[0] is None:
+            raise NoClientsAvailable()
 
         return RemoteDevice(**res.data[0])
 
