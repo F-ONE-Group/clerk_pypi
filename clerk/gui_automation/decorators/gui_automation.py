@@ -39,6 +39,11 @@ def _allocate_remote_device(
             remote_device = clerk_client.allocate_remote_device(
                 group_name=group_name, run_id=run_id
             )
+            os.environ["REMOTE_DEVICE_ID"] = remote_device.id
+            os.environ["REMOTE_DEVICE_NAME"] = remote_device.name
+            logger.debug(f"Remote device allocated: {remote_device.name}")
+            return remote_device
+
         except NoClientsAvailable:
             logger.warning(
                 f"No clients are available for {group_name} group. Initiating a {CLIENT_TIMEOUT_MINS} minute wait. Retry count: {retries}"
@@ -48,12 +53,7 @@ def _allocate_remote_device(
                 raise ClientAvailabilityTimeout(
                     f"No clients available for {group_name} group after {CLIENT_TIMEOUT_MINS*MAX_CLIENT_AVAILABILITY_RETRIES} minutes"
                 )
-            time.sleep(CLIENT_TIMEOUT_MINS)
-
-        os.environ["REMOTE_DEVICE_ID"] = remote_device.id
-        os.environ["REMOTE_DEVICE_NAME"] = remote_device.name
-        logger.debug(f"Remote device allocated: {remote_device.name}")
-        return remote_device
+            time.sleep(CLIENT_TIMEOUT_MINS * 60)
 
 
 def _deallocate_target(
