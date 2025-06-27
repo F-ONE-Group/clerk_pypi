@@ -68,9 +68,7 @@ async def _get_screen_async() -> str:
     payload = {
         "proc_inst_id": os.getenv("PROC_ID"),
         "client_name": os.getenv("REMOTE_DEVICE_NAME"),
-        "headless": (
-            True if os.getenv("HEADLESS", "True").lower() == "true" else False
-        ),
+        "headless": True,
         "action": {"action_type": "screenshot"},
     }
     try:
