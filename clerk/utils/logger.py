@@ -4,7 +4,7 @@ import logging
 import sys
 
 if sys.platform == "win32":
-    base_path = os.path.join(os.getcwd(), "data", "output", "artifacts")
+    base_path = os.path.join(os.getcwd(), "data", "artifacts")
 else:
     base_path = "/app/data/artifacts"
 
