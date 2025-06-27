@@ -1,5 +1,6 @@
 import os
 from typing import Optional
+from clerk.utils import logger
 
 
 def save_artifact(
@@ -32,4 +33,5 @@ def save_artifact(
     with open(file_path, "wb") as f:
         f.write(file_bytes)
 
+    logger.debug(f"Artifact successfully saved at: {file_path}")
     return file_path
