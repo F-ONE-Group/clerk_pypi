@@ -1,4 +1,5 @@
 import os
+import base64
 from typing import Optional
 from backoff._typing import Details
 
@@ -48,7 +49,7 @@ def save_screenshot(filename: str, sub_folder: Optional[str] = None) -> str:
     screen_b64: str = get_screen()
     return save_artifact(
         filename=filename,
-        file_bytes=screen_b64.encode("utf-8"),
+        file_bytes=base64.b64decode(screen_b64),
         subfolder=sub_folder,
     )
 
