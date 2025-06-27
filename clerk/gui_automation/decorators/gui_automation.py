@@ -65,7 +65,9 @@ def _deallocate_target(
     os.environ.pop("REMOTE_DEVICE_NAME", None)
 
 
-def gui_automation():
+def gui_automation(
+    reserve_client: bool = False,
+):
     """
     Decorator that:
       • Allocates a remote device,
@@ -88,6 +90,7 @@ def gui_automation():
         @functools.wraps(func)
         def wrapper(payload: ClerkCodePayload, *args, **kwargs):
             global global_ws
+            force_deallocate = False
             os.environ["PROC_ID"] = payload.run_id
 
             remote_device = _allocate_remote_device(
@@ -116,9 +119,11 @@ def gui_automation():
 
             except Exception as e:
                 os.environ.pop("PROC_ID", None)
+                force_deallocate = True
                 raise
             finally:
-                _deallocate_target(clerk_client, remote_device, payload.run_id)
+                if not reserve_client or force_deallocate:
+                    _deallocate_target(clerk_client, remote_device, payload.run_id)
 
                 if global_ws and global_ws.state is State.OPEN:
                     close_task = event_loop.create_task(close_ws_connection(global_ws))
