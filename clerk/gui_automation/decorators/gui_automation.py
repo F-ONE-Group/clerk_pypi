@@ -24,7 +24,9 @@ global_ws: Union[ClientConnection, None] = None
 clerk_client = RPAClerk()
 wss_uri = "wss://agent-manager.f-one.group/action"
 
-REMOTE_DEVICE_ALLOCATION_TIMEOUT = int(os.getenv("REMOTE_DEVICE_ALLOCATION_TIMEOUT", 1))
+REMOTE_DEVICE_ALLOCATION_TIMEOUT = int(
+    os.getenv("REMOTE_DEVICE_ALLOCATION_TIMEOUT", 60)
+)
 REMOTE_DEVICE_ALLOCATION_MAX_TRIES = int(
     os.getenv("REMOTE_DEVICE_ALLOCATION_MAX_TRIES", 60)
 )
@@ -48,13 +50,13 @@ def _allocate_remote_device(
 
         except NoClientsAvailable:
             logger.warning(
-                f"No clients are available for {group_name} group. Initiating a {REMOTE_DEVICE_ALLOCATION_TIMEOUT} minute wait. Retry count: {retries}"
+                f"No clients are available for {group_name} group. Initiating a {REMOTE_DEVICE_ALLOCATION_TIMEOUT} seconds wait. Retry count: {retries}"
             )
             if retries >= REMOTE_DEVICE_ALLOCATION_MAX_TRIES:
                 raise ClientAvailabilityTimeout(
-                    f"No clients available for {group_name} group after {REMOTE_DEVICE_ALLOCATION_TIMEOUT * REMOTE_DEVICE_ALLOCATION_MAX_TRIES} minutes"
+                    f"No clients available for {group_name} group after {REMOTE_DEVICE_ALLOCATION_TIMEOUT * REMOTE_DEVICE_ALLOCATION_MAX_TRIES} seconds"
                 )
-            time.sleep(REMOTE_DEVICE_ALLOCATION_TIMEOUT * 60)
+            time.sleep(REMOTE_DEVICE_ALLOCATION_TIMEOUT)
             retries += 1
 
 
