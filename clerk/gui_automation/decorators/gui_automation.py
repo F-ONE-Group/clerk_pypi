@@ -128,6 +128,10 @@ def gui_automation(
             finally:
                 if not reserve_client or force_deallocate:
                     _deallocate_target(clerk_client, remote_device, payload.run_id)
+                else:
+                    logger.warning(
+                        f"The client stayed reserved for the this run id: {payload.run_id}"
+                    )
 
                 if global_ws and global_ws.state is State.OPEN:
                     close_task = event_loop.create_task(close_ws_connection(global_ws))
