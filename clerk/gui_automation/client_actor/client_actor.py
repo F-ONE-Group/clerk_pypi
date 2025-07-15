@@ -66,7 +66,7 @@ async def _get_screen_async() -> str:
         and returns the base64 encoded image of the screen captured.
     """
     payload = {
-        "proc_inst_id": os.getenv("PROC_ID"),
+        "proc_inst_id": os.getenv("_run_id"),
         "client_name": os.getenv("REMOTE_DEVICE_NAME"),
         "headless": True,
         "action": {"action_type": "screenshot"},
@@ -132,7 +132,7 @@ async def _perform_action_async(
         PerformActionException: If the action fails with an error message.
     """
     req_payload: Dict = {
-        "proc_inst_id": os.getenv("PROC_ID"),
+        "proc_inst_id": os.getenv("_run_id"),
         "client_name": os.getenv("REMOTE_DEVICE_NAME"),
         "headless": (
             True if os.getenv("HEADLESS", "True").lower() == "true" else False

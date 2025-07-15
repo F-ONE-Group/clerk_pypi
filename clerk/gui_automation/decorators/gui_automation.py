@@ -95,7 +95,8 @@ def gui_automation(
         def wrapper(payload: ClerkCodePayload, *args, **kwargs):
             global global_ws
             force_deallocate = False
-            os.environ["PROC_ID"] = payload.run_id
+            os.environ["_document_id"] = payload.document.id
+            os.environ["_run_id"] = payload.run_id
 
             remote_device = _allocate_remote_device(
                 clerk_client, group_name, payload.run_id
@@ -122,10 +123,11 @@ def gui_automation(
                     raise WebSocketConnectionFailed()
 
             except Exception as e:
-                os.environ.pop("PROC_ID", None)
                 force_deallocate = True
                 raise
             finally:
+                os.environ.pop("_run_id", None)
+                os.environ.pop("_document_id", None)
                 if not reserve_client or force_deallocate:
                     _deallocate_target(clerk_client, remote_device, payload.run_id)
                 else:

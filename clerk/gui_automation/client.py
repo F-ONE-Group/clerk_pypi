@@ -11,6 +11,7 @@ from clerk.gui_automation.ui_state_inspector.models import (
     TargetWithAnchor,
 )
 from clerk.models.remote_device import RemoteDevice
+from clerk.models.ui_operator import UiOperatorTask
 
 
 class RPAClerk(BaseClerk):
@@ -45,6 +46,16 @@ class RPAClerk(BaseClerk):
         if res.data[0] is None:
             raise RuntimeError("No coordinates found in the response.")
         return Coords(**res.data[0])
+
+    def create_ui_operator_task(self, payload: Dict) -> UiOperatorTask:
+        endpoint = "/ui_operator"
+        res = self.post_request(endpoint=endpoint, json=payload)
+        return UiOperatorTask(**res.data[0])
+
+    def get_ui_operator_task(self, id: str) -> UiOperatorTask:
+        endpoint = "/ui_operator"
+        res = self.get_request(endpoint=endpoint, params={"task_id": id})
+        return UiOperatorTask(**res.data[0])
 
 
 class GUIVisionClerk(BaseClerk):
