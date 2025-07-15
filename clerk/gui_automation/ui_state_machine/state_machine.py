@@ -725,8 +725,10 @@ class ScreenPilot:
     @classmethod
     def _initialize_env_variables(cls):
         os.environ["_ui_operator_enabled"] = str(cls.ui_operator_enabled)
-        os.environ["_ui_operator_pooling_interval"] = cls.ui_operator_pooling_interval
-        os.environ["_ui_operator_timeout"] = cls.ui_operator_timeout
+        os.environ["_ui_operator_pooling_interval"] = str(
+            cls.ui_operator_pooling_interval
+        )
+        os.environ["_ui_operator_timeout"] = str(cls.ui_operator_timeout)
 
     @classmethod
     def run(
