@@ -108,7 +108,9 @@ def maybe_engage_operator_ui_action(details: Details) -> None:
     while datetime.now() < resolution_deadline:
         task: UiOperatorTask = clerk_client.get_ui_operator_task(task.id)
         if task.status == TaskStatuses.COMPLETED:
-            logger.debug(f"The ui operator task {task.id} has been resolved")
+            logger.debug(
+                f"The ui operator task {task.id} has been resolved by {task.assignee_name}"
+            )
             return
         elif task.status == TaskStatuses.CANCELLED:
             logger.warning(f"The ui operator task {task.id} has been cancelled")
