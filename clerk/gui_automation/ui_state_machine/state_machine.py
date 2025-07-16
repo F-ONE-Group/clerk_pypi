@@ -66,9 +66,6 @@ class ScreenPilot:
     tolerate_repeat_transitions: int = 5
     tolerate_repeat_states: int = 5
     enable_force_close_app_process: bool = False
-    ui_operator_enabled: bool = False
-    ui_operator_pooling_interval: int = 1  # seconds
-    ui_operator_timeout: int = 3600  # seconds (1 hour)
     process_name: Optional[str] = None
     _acted_since_state_eval: bool = False
     _ai_recovery_agent: Optional[CourseCorrector] = None
@@ -723,14 +720,6 @@ class ScreenPilot:
         return None
 
     @classmethod
-    def _initialize_env_variables(cls):
-        os.environ["_ui_operator_enabled"] = str(cls.ui_operator_enabled)
-        os.environ["_ui_operator_pooling_interval"] = str(
-            cls.ui_operator_pooling_interval
-        )
-        os.environ["_ui_operator_timeout"] = str(cls.ui_operator_timeout)
-
-    @classmethod
     def run(
         cls, goal_function: Optional[Callable] = None, **kwargs
     ) -> Union[ScreenPilotOutcome, ScreenPilotException]:
@@ -746,8 +735,6 @@ class ScreenPilot:
         Returns:
                 - Exit reason (ScreenPilotOutcome): Exception class that interrupted the state machine execution.
         """
-        cls._initialize_env_variables()
-
         if not goal_function:
             goal_function = cls._default_goal_function
         cls._act_on_start()
