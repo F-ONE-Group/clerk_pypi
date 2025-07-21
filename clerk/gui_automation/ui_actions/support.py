@@ -2,7 +2,7 @@ from datetime import timedelta, datetime
 import os
 import base64
 import time
-from typing import Optional
+from typing import List, Optional
 from backoff._typing import Details
 
 from clerk.models.ui_operator import TaskStatuses, UiOperatorTask
@@ -58,6 +58,47 @@ def save_screenshot(filename: str, sub_folder: Optional[str] = None) -> str:
         file_bytes=base64.b64decode(screen_b64),
         subfolder=sub_folder,
     )
+
+
+def try_actions(actions: List[BaseAction]):
+    """
+    Executes a list of UI actions and handles any errors that occur.
+
+    This function takes a list of UI actions as input and executes them one by one.
+    If an action fails with a RuntimeError, it logs a warning message and moves on to the next action.
+    If all actions fail, it logs an error message and raises a RuntimeError.
+
+    Args:
+        actions (List[BaseAction]): A list of UI actions to be executed.
+
+    Raises:
+        TypeError: If any of the actions in the list is not an instance of BaseAction.
+        RuntimeError: If all actions fail.
+
+    Returns:
+        None
+
+    Example Usage:
+        actions = [action1, action2, action3]
+        try_actions(actions)
+    """
+    try:
+        assert all(isinstance(action, BaseAction) for action in actions)
+        for action in actions:
+            try:
+                action.do()
+                return
+            except RuntimeError as e:
+                logger.warning(
+                    f"The action {action} was not performed successfully.\nDetails: {str(e)}",
+                )
+        # all the actions have failed. log an error and raise a runtime error
+        logger.error("All actions have failed.")
+        raise RuntimeError("All actions have failed")
+    except AssertionError as e:
+        raise TypeError(
+            f"All actions must be valid. Encountered invalid action: {str(e)}"
+        )
 
 
 def _format_action_string(action: BaseAction) -> str:
