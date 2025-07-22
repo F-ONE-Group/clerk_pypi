@@ -79,11 +79,11 @@ def _log(level: str, message: str):
         _log_to_console("INFO", "module_name", "This is an info message")
 
     """
-    # Get run_id from environment variable or default to "unknown"
-    run_id = os.getenv("_RUN_ID", "unknown")
+    # Get artifact folder from environment variable or default to "unknown"
+    _artifacts_folder = os.getenv("_artifacts_folder", "unknown")
 
     # Create the base path for artifacts
-    logs_path = os.path.join(base_path, run_id)
+    logs_path = os.path.join(base_path, _artifacts_folder)
     os.makedirs(logs_path, exist_ok=True)
     # Define the log file path
     log_file_path = os.path.join(logs_path, "logs.txt")
