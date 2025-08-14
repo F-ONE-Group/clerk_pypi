@@ -1,7 +1,10 @@
 import os
 import pickle
+import traceback
 from typing import Callable, Optional
 from functools import wraps
+
+from clerk.exceptions.exceptions import ApplicationException
 from .models import ClerkCodePayload
 
 input_pkl: str = "/app/data/input/input.pkl"
@@ -35,7 +38,10 @@ def clerk_code():
                 if not isinstance(output, ClerkCodePayload):
                     raise TypeError("Function must return a ClerkCodePayload instance.")
             except Exception as e:
-                output = e
+                # parse no standard errors into the standard Application Error
+                output = ApplicationException(
+                    type=str(type(e)), message=str(e), traceback=traceback.format_exc()
+                )
 
             # 3. write to output.pkl
             try:
