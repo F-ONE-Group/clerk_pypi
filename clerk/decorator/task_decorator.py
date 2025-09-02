@@ -40,7 +40,7 @@ def clerk_code():
             except Exception as e:
                 # parse no standard errors into the standard Application Error
                 output = ApplicationException(
-                    type=str(type(e)), message=str(e), traceback=traceback.format_exc()
+                    type_=str(type(e)), message=str(e), traceback=traceback.format_exc()
                 )
 
             # 3. write to output.pkl
