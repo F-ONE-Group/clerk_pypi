@@ -21,6 +21,9 @@ def clerk_code():
             error_info = None
             if payload is None:
                 use_pickle = True
+                # Write a placeholder output file in case of early failure                
+                with open(output_pkl, "wb") as f:
+                    pickle.dump({"error": "Early failure"}, f)                
                 try:
                     with open(input_pkl, "rb") as f:
                         raw_data = pickle.load(f)
