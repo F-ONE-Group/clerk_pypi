@@ -1,4 +1,3 @@
-import os
 import pickle
 import traceback
 from typing import Callable, Optional
@@ -17,6 +16,9 @@ def clerk_code():
         def wrapper(payload: Optional[ClerkCodePayload] = None) -> ClerkCodePayload:
             # 1. Load payload from file if not provided
             use_pickle = False
+            output = None
+            error_occurred = False
+            error_info = None
             if payload is None:
                 use_pickle = True
                 try:
@@ -28,34 +30,53 @@ def clerk_code():
                         else raw_data
                     )
                 except Exception as e:
-                    raise RuntimeError(
-                        f"Failed to load and parse input pickle: {e}"
-                    ) from e
+                    error_occurred = True
+                    error_info = ApplicationException(
+                        type_=str(type(e)),
+                        message=f"Failed to load and parse input pickle: {e}",
+                        traceback=traceback.format_exc(),
+                    )
 
             # 2. Execute function
-            try:
-                output = func(payload)
-                if not isinstance(output, ClerkCodePayload):
-                    raise TypeError("Function must return a ClerkCodePayload instance.")
-            except Exception as e:
-                # parse no standard errors into the standard Application Error
-                output = ApplicationException(
-                    type_=str(type(e)), message=str(e), traceback=traceback.format_exc()
-                )
+            if not error_occurred:
+                try:
+                    output = func(payload)
+                    if not isinstance(output, ClerkCodePayload):
+                        raise TypeError(
+                            "Function must return a ClerkCodePayload instance."
+                        )
+                except Exception as e:
+                    error_occurred = True
+                    error_info = ApplicationException(
+                        type_=str(type(e)),
+                        message=str(e),
+                        traceback=traceback.format_exc(),
+                    )
 
             # 3. write to output.pkl
             try:
                 if use_pickle:
                     with open(output_pkl, "wb") as f:
-                        if isinstance(output, Exception):
+                        if error_occurred:
+                            pickle.dump(error_info, f)
+                        elif isinstance(output, Exception):
                             pickle.dump(output, f)
                         else:
                             pickle.dump(output.model_dump(mode="json"), f)
-
             except Exception as e:
-                output = RuntimeError(f"Failed to write output pickle: {str(e)}")
-                with open(output_pkl, "wb") as f:
-                    pickle.dump(output, f)
+                # If writing output.pkl fails, try to write a minimal error
+                try:
+                    with open(output_pkl, "wb") as f:
+                        pickle.dump(
+                            ApplicationException(
+                                type_=str(type(e)),
+                                message=f"Failed to write output pickle: {str(e)}",
+                                traceback=traceback.format_exc(),
+                            ),
+                            f,
+                        )
+                except Exception:
+                    pass  # Last resort: do nothing if even this fails
 
             # 4. Raise if error or return result
             if isinstance(output, Exception):
