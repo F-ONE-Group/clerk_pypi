@@ -79,6 +79,8 @@ class BaseClerk(BaseModel):
         headers: Dict[str, str] = {},
         json: Dict = {},
         params: Dict = {},
+        data: Dict = None,
+        files: Dict = {},
     ) -> StandardResponse:
 
         merged_headers = {**self.headers, **headers}
@@ -88,7 +90,14 @@ class BaseClerk(BaseModel):
 
         # logger.info(f"POST {url} | body={json} | params={params}")
 
-        response = requests.post(url, headers=merged_headers, json=json, params=params)
+        response = requests.post(
+            url,
+            headers=merged_headers,
+            json=json,
+            params=params,
+            data=data,
+            files=files,
+        )
         response.raise_for_status()
 
         return StandardResponse(**response.json())
