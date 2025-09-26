@@ -24,6 +24,5 @@ class Clerk(BaseClerk):
     ):
         endpoint = f"/document/{document_id}/files/upload"
         params = {"type": type}
-        files_data = []
-        files_data.append(f.to_multipart_format() for f in files)
+        files_data = [f.to_multipart_format() for f in files]
         self.post_request(endpoint, params=params, files=files_data)
