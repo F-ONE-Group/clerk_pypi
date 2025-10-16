@@ -136,7 +136,7 @@ class GUIVisionClerk(BaseClerk):
 
 
 class CourseCorrectorClerk(BaseClerk):
-    root_endpoint: str = "/gui_automation/course_corrector"
+    root_endpoint: str = "/gui_automation/course_correction"
 
     def get_corrective_actions(
         self,
