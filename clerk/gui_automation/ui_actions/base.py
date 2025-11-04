@@ -1,4 +1,4 @@
-from typing import Literal, Self, Union, List, Optional
+from typing import Literal, Self, TypeAlias, Union, List, Optional
 from pydantic import BaseModel, Field, model_validator
 from ..client_actor import get_screen
 from ..exceptions.modality.exc import TargetModalityError
@@ -24,12 +24,13 @@ def to_full_img_path(img: Union[str, ImageB64]) -> str:
     return os.path.join(TARGET_IMAGES_PATH, img)
 
 
-ActionTypes = Literal[
+ActionTypes: TypeAlias = Literal[
     "left_click",
     "right_click",
     "middle_click",
     "double_click",
     "send_keys",
+    "hot_keys",
     "press_keys",
     "wait_for",
     "open_app",
@@ -130,6 +131,8 @@ class BaseAction(BaseModel):
         return [xcenter, ycenter]
 
     def _prepare_payload(self):
+        if not self.target:
+            raise ValueError("target cannot be None.")
         payload: Screenshot = Screenshot(
             screen_b64=ImageB64(value=get_screen()),
             target=self.target,

@@ -16,14 +16,14 @@ def clerk_code():
         def wrapper(payload: Optional[ClerkCodePayload] = None) -> ClerkCodePayload:
             # 1. Load payload from file if not provided
             use_pickle = False
-            output = None
+            output: ClerkCodePayload | BaseException | None = None
             error_occurred = False
             error_info = None
             if payload is None:
                 use_pickle = True
-                # Write a placeholder output file in case of early failure                
+                # Write a placeholder output file in case of early failure
                 with open(output_pkl, "wb") as f:
-                    pickle.dump({"error": "Early failure"}, f)                
+                    pickle.dump({"error": "Early failure"}, f)
                 try:
                     with open(input_pkl, "rb") as f:
                         raw_data = pickle.load(f)
@@ -40,11 +40,13 @@ def clerk_code():
                         traceback=traceback.format_exc(),
                     )
 
+            assert payload is not None
+
             # 2. Execute function
             if not error_occurred:
                 try:
                     output = func(payload)
-                    if not isinstance(output, ClerkCodePayload):
+                    if not isinstance(output, ClerkCodePayload):  # type: ignore
                         raise TypeError(
                             "Function must return a ClerkCodePayload instance."
                         )
@@ -58,7 +60,7 @@ def clerk_code():
 
             # 3. write to output.pkl
             try:
-                if use_pickle:
+                if use_pickle and output is not None:
                     with open(output_pkl, "wb") as f:
                         if error_occurred:
                             pickle.dump(error_info, f)
@@ -66,6 +68,7 @@ def clerk_code():
                             pickle.dump(output, f)
                         else:
                             pickle.dump(output.model_dump(mode="json"), f)
+
             except Exception as e:
                 # If writing output.pkl fails, try to write a minimal error
                 try:
@@ -84,6 +87,9 @@ def clerk_code():
             # 4. Raise if error or return result
             if isinstance(output, Exception):
                 raise output
+
+            if output is None:
+                raise RuntimeError("output object cannot be None")
 
             return output
 

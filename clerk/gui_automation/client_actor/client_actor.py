@@ -21,7 +21,7 @@ from .model import PerformActionResponse, ActionStates
 from .exception import PerformActionException, GetScreenError
 
 
-async def _perform_action_ws(payload: Dict) -> PerformActionResponse:
+async def _perform_action_ws(payload: Dict[str, Any]) -> PerformActionResponse:
     """Perform an action over a WebSocket connection.
 
     Args:
@@ -65,7 +65,7 @@ async def _get_screen_async() -> str:
         This function sends a request to perform a screenshot action over a WebSocket connection
         and returns the base64 encoded image of the screen captured.
     """
-    payload = {
+    payload: Dict[str, Any] = {
         "proc_inst_id": os.getenv("_run_id"),
         "client_name": os.getenv("REMOTE_DEVICE_NAME"),
         "headless": True,
@@ -131,7 +131,7 @@ async def _perform_action_async(
     Raises:
         PerformActionException: If the action fails with an error message.
     """
-    req_payload: Dict = {
+    req_payload: Dict[str, Any] = {
         "proc_inst_id": os.getenv("_run_id"),
         "client_name": os.getenv("REMOTE_DEVICE_NAME"),
         "headless": (

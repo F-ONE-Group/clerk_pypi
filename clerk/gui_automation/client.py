@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional, Type
 
 from pydantic import BaseModel
 from clerk.base import BaseClerk
@@ -16,7 +16,7 @@ from clerk.models.ui_operator import UiOperatorTask
 
 class RPAClerk(BaseClerk):
 
-    root_endpoint: str = "/gui_automation"
+    root_endpoint = "/gui_automation"
 
     def allocate_remote_device(self, group_name: str, run_id: str):
         endpoint = "/remote_device/allocate"
@@ -24,7 +24,7 @@ class RPAClerk(BaseClerk):
             endpoint=endpoint, json={"group_name": group_name, "run_id": run_id}
         )
 
-        if res.data[0] is None:
+        if res.data[0] is None:  # type: ignore
             raise NoClientsAvailable()
 
         return RemoteDevice(**res.data[0])
@@ -40,14 +40,14 @@ class RPAClerk(BaseClerk):
             json={"id": remote_device.id, "name": remote_device.name, "run_id": run_id},
         )
 
-    def get_coordinates(self, payload: Dict) -> Coords:
+    def get_coordinates(self, payload: Dict[str, Any]) -> Coords:
         endpoint = "/action_model/get_coordinates"
         res = self.post_request(endpoint=endpoint, json=payload)
-        if res.data[0] is None:
+        if res.data[0] is None:  # type: ignore
             raise RuntimeError("No coordinates found in the response.")
         return Coords(**res.data[0])
 
-    def create_ui_operator_task(self, payload: Dict) -> UiOperatorTask:
+    def create_ui_operator_task(self, payload: Dict[str, Any]) -> UiOperatorTask:
         endpoint = "/ui_operator"
         res = self.post_request(endpoint=endpoint, json=payload)
         return UiOperatorTask(**res.data[0])
@@ -59,7 +59,7 @@ class RPAClerk(BaseClerk):
 
 
 class GUIVisionClerk(BaseClerk):
-    root_endpoint: str = "/gui_automation/vision"
+    root_endpoint = "/gui_automation/vision"
 
     def find_target(self, screen_b64: str, use_ocr: bool, target_prompt: str):
         endpoint = "/find_target"
@@ -89,8 +89,12 @@ class GUIVisionClerk(BaseClerk):
         return BaseState(**res.data[0])
 
     def answer(
-        self, screen_b64: str, use_ocr: bool, question: str, output_model: BaseModel
-    ) -> Dict:
+        self,
+        screen_b64: str,
+        use_ocr: bool,
+        question: str,
+        output_model: Type[BaseModel],
+    ) -> BaseModel:
         endpoint = "/answer"
         res = self.post_request(
             endpoint=endpoint,
@@ -102,7 +106,7 @@ class GUIVisionClerk(BaseClerk):
             },
         )
 
-        return output_model(**res.data[0])
+        return output_model.model_validate(**res.data[0])
 
     def classify_state(
         self, screen_b64: str, use_ocr: bool, possible_states: List[Dict[str, str]]
@@ -136,12 +140,12 @@ class GUIVisionClerk(BaseClerk):
 
 
 class CourseCorrectorClerk(BaseClerk):
-    root_endpoint: str = "/gui_automation/course_correction"
+    root_endpoint = "/gui_automation/course_correction"
 
     def get_corrective_actions(
         self,
         screen_b64: str,
-        use_ocr: str,
+        use_ocr: bool,
         goal: str,
         custom_instructions: Optional[str] = None,
     ) -> ActionString:

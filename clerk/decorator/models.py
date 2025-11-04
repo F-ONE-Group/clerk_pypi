@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from pydantic import BaseModel
 
 
@@ -16,5 +16,5 @@ class Document(BaseModel):
 
 class ClerkCodePayload(BaseModel):
     document: Document
-    structured_data: Dict
+    structured_data: Dict[str, Any]
     run_id: Optional[str] = None

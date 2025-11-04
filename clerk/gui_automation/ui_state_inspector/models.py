@@ -1,5 +1,5 @@
-from pydantic import BaseModel, field_validator, model_validator
-from typing import List, Dict, Optional
+from pydantic import BaseModel, field_validator
+from typing import Any, List, Dict, Optional
 
 
 class BaseState(BaseModel):
@@ -21,7 +21,7 @@ class BaseState(BaseModel):
 
     id: str
     description: str
-    screenshots: List = []
+    screenshots: List[Dict[str, str]] = []
 
     def add_screenshot(self, bucket_name: str, file_name: str):
         self.screenshots.append({"bucket_name": bucket_name, "file_name": file_name})
@@ -137,7 +137,7 @@ class TargetWithAnchor(BaseModel):
 
     @field_validator("target", mode="before")
     @classmethod
-    def retain_one_word(cls, v):
+    def retain_one_word(cls, v: str):
         return v.split(" ")[-1]
 
 
@@ -174,7 +174,7 @@ class ActionString(BaseModel):
 
     @field_validator("action_string", mode="before")
     @classmethod
-    def ensure_format(cls, v):
+    def ensure_format(cls, v: Any):
         if not isinstance(v, str):
             raise ValueError("Action string must be a string")
         if not v.startswith("LeftClick") and not v.startswith("NoAction"):

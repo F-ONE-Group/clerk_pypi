@@ -115,7 +115,7 @@ class Vision(BaseModel):
             The current state of the GUI (BaseState or a subclass of BaseState)
         """
         screen_b64 = get_screen()
-        state = self.verify_state(
+        state = self.clerk_client.verify_state(
             screen_b64,
             self.use_ocr,
             possible_states,
@@ -160,7 +160,7 @@ class Vision(BaseModel):
             screen_b64, self.use_ocr, possible_states
         )
         # if output_model is provided, return the model, otherwise return the id and description of the default model
-        if output_model is not None:
+        if output_model is not None:  # type: ignore
             return state
         assert isinstance(state, BaseState)
         return state.id, state.description

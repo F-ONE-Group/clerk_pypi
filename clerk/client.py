@@ -1,11 +1,28 @@
-from typing import List, Literal
-from xml.dom.minidom import Document
+from typing import Any, Dict, List, Literal
 
 from clerk.base import BaseClerk
+from clerk.models.document import Document, UploadDocumentRequest
 from .models.file import ParsedFile, UploadFile
 
 
 class Clerk(BaseClerk):
+
+    def upload_document(self, request: UploadDocumentRequest) -> Document:
+        endpoint = "/document"
+        res = self.post_request(
+            endpoint=endpoint, data=request.data, files=request.files_
+        )
+        return Document(**res.data[0])
+
+    def update_document_structured_data(
+        self, document_id: str, updated_structured_data: Dict[str, Any]
+    ) -> Document:
+        endpoint = f"/document/{document_id}"
+        payload = dict(structured_data=updated_structured_data)
+        res = self.put_request(endpoint, json=payload)
+
+        return Document(**res.data[0])
+
     def get_document(self, document_id: str) -> Document:
         endpoint = f"/document/{document_id}"
         res = self.get_request(endpoint=endpoint)

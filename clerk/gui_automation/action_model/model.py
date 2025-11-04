@@ -1,7 +1,7 @@
 import base64
 import os
 from typing import List, Literal, Optional, Union
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel
 
 CoordsType = Union[List[float], List[int]]
 

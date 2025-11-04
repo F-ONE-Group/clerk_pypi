@@ -79,7 +79,7 @@ def gui_automation(
       • Passes control to the wrapped function,
       • Cleans everything up afterwards.
     """
-    group_name: str = os.getenv("REMOTE_DEVICE_GROUP")
+    group_name: str | None = os.getenv("REMOTE_DEVICE_GROUP")
     if not group_name:
         raise ValueError("REMOTE_DEVICE_GROUP environmental variable is required.")
 

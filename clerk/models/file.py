@@ -18,8 +18,10 @@ class ParsedFile(BaseModel):
 
 class UploadFile(BaseModel):
     name: str
-    mimetype: str
+    mimetype: str | None
     content: bytes
 
-    def to_multipart_format(self, key: str = "files") -> Tuple:
+    def to_multipart_format(
+        self, key: str = "files"
+    ) -> Tuple[str, Tuple[str, bytes, str | None]]:
         return (key, (self.name, self.content, self.mimetype))

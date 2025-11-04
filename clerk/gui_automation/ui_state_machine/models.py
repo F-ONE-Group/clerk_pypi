@@ -1,5 +1,5 @@
-from typing import Optional
-from pydantic import BaseModel, field_validator, model_validator
+from typing import Any, Optional
+from pydantic import BaseModel, field_validator
 
 
 class ActionString(BaseModel):
@@ -24,7 +24,7 @@ class ActionString(BaseModel):
 
     @field_validator("action_string", mode="before")
     @classmethod
-    def ensure_format(cls, v):
+    def ensure_format(cls, v: Any):
         if not isinstance(v, str):
             raise ValueError("Action string must be a string")
         if not v.endswith(".do()") and not v.startswith("NoAction"):
@@ -32,7 +32,7 @@ class ActionString(BaseModel):
         return v
 
     @field_validator("interrupt_process", mode="before")
-    def convert_to_bool(cls, v):
+    def convert_to_bool(cls, v: str | bool | None):
         if v is None:
             return False
         elif isinstance(v, str):

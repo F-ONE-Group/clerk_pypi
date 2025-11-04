@@ -45,7 +45,7 @@ class File(BaseModel):
 
     @field_validator("content", mode="before")
     @classmethod
-    def convert_to_bytes(cls, v) -> bytes:
+    def convert_to_bytes(cls, v: str | bytes) -> bytes:
         if isinstance(v, str):
             from base64 import b64decode
 
@@ -75,7 +75,7 @@ class LeftClick(BaseAction):
         LeftClick(target="Suche").above("Kalender").do()
     """
 
-    action_type: Literal["left_click"] = "left_click"
+    action_type = "left_click"
 
     @backoff.on_exception(
         backoff.expo,
@@ -100,7 +100,7 @@ class LeftClick(BaseAction):
 
     @property
     def actionable_string(self):
-        return f"LeftClick(action_type='{self.action_type}', target='{self.target}', anchor='{self.anchor}', relation='{self.relation}').do()"
+        return f"LeftClick(action_type='{self.action_type}', target='{self.target}', anchor='{self.anchors}').do()"
 
 
 class RightClick(BaseAction):
@@ -118,7 +118,7 @@ class RightClick(BaseAction):
         RightClick(target="Suche").above("Kalender").do()
     """
 
-    action_type: Literal["right_click"] = "right_click"
+    action_type = "right_click"
 
     @backoff.on_exception(
         backoff.expo,
@@ -143,7 +143,7 @@ class RightClick(BaseAction):
 
     @property
     def actionable_string(self):
-        return f"RightClick(action_type='{self.action_type}', target='{self.target}', anchor='{self.anchor}', relation='{self.relation}').do()"
+        return f"RightClick(action_type='{self.action_type}', target='{self.target}', anchor='{self.anchors}').do()"
 
 
 class MiddleClickAction(BaseAction):
@@ -161,7 +161,7 @@ class MiddleClickAction(BaseAction):
         MiddleClickAction(target="Suche").above("Kalender").do()
     """
 
-    action_type: Literal["middle_click"] = "middle_click"
+    action_type = "middle_click"
 
     @backoff.on_exception(
         backoff.expo,
@@ -186,7 +186,7 @@ class MiddleClickAction(BaseAction):
 
     @property
     def actionable_string(self):
-        return f"MiddleClickAction(action_type='{self.action_type}', target='{self.target}', anchor='{self.anchor}', relation='{self.relation}').do()"
+        return f"MiddleClickAction(action_type='{self.action_type}', target='{self.target}', anchor='{self.anchors}').do()"
 
 
 class DoubleClick(BaseAction):
@@ -204,7 +204,7 @@ class DoubleClick(BaseAction):
         DoubleClick(target="Suche").above("Kalender").do()
     """
 
-    action_type: Literal["double_click"] = "double_click"
+    action_type = "double_click"
 
     @backoff.on_exception(
         backoff.expo,
@@ -229,7 +229,7 @@ class DoubleClick(BaseAction):
 
     @property
     def actionable_string(self):
-        return f"DoubleClick(action_type='{self.action_type}', target='{self.target}', anchor='{self.anchor}', relation='{self.relation}').do()"
+        return f"DoubleClick(action_type='{self.action_type}', target='{self.target}', anchor='{self.anchors}').do()"
 
 
 class Scroll(BaseAction):
@@ -249,7 +249,7 @@ class Scroll(BaseAction):
         DoubleClick(target="Suche").above("Kalender").do()
     """
 
-    action_type: Literal["scroll"] = "scroll"
+    action_type = "scroll"
     clicks: int
     click_coords: List[int] = Field(default=[])
 
@@ -333,7 +333,7 @@ class SendKeys(BaseAction):
 
     @property
     def actionable_string(self):
-        return f"SendKeys(action_type='{self.action_type}', target='{self.target}', anchor='{self.anchor}', relation='{self.relation}', keys='{self.keys}').do()"
+        return f"SendKeys(action_type='{self.action_type}', target='{self.target}', anchor='{self.anchors}', keys='{self.keys}').do()"
 
 
 class PressKeys(BaseAction):
@@ -353,7 +353,7 @@ class PressKeys(BaseAction):
         PressKeys(keys='ctrl+shift+esc').do()
     """
 
-    action_type: ActionTypes = "press_keys"
+    action_type = "press_keys"
     keys: str
 
     def do(self):
@@ -366,7 +366,7 @@ class PressKeys(BaseAction):
 
     @property
     def actionable_string(self):
-        return f"PressKeys(action_type='{self.action_type}', target='{self.target}', anchor='{self.anchor}', relation='{self.relation}', keys='{self.keys}').do()"
+        return f"PressKeys(action_type='{self.action_type}', target='{self.target}', anchor='{self.anchors}', keys='{self.keys}').do()"
 
 
 class WaitFor(BaseAction):
@@ -385,7 +385,7 @@ class WaitFor(BaseAction):
         WaitFor("element").do(timeout=60)
     """
 
-    action_type: Literal["wait_for"] = "wait_for"
+    action_type = "wait_for"
     retry_timeout: float = 0.5
     is_awaited: bool = True
 
@@ -450,7 +450,7 @@ class OpenApplication(BaseAction):
         OpenApplication(app_path="/path/to/application.exe", app_window_name="Application Window").do()
     """
 
-    action_type: Literal["open_app"] = "open_app"
+    action_type = "open_app"
     app_path: str = Field(description="Absolute path of the application")
     app_window_name: str = Field(
         description="Name of the application window once open. Wildcard logic enabled."
@@ -479,7 +479,7 @@ class ForceCloseApplication(BaseAction):
             Executes the action to force close the application by creating and performing an ApplicationExecutePayload with the specified process name.
     """
 
-    action_type: Literal["force_close_app"] = "force_close_app"
+    action_type = "force_close_app"
     process_name: str = Field(
         description="Process name from task manager. Example: process.exe"
     )
@@ -509,7 +509,7 @@ class SaveFiles(BaseAction):
         SaveFiles(save_location="/path/to/", files=["/path/to/file_1", "/path/to/file_2"]).do()
     """
 
-    action_type: ActionTypes = "save_files"
+    action_type = "save_files"
     save_location: str
     files: Union[List[str], List[FileDetails]]
 
@@ -580,7 +580,7 @@ class GetFile(BaseAction):
         GetFile(file_location="/path/to/file_1").do()
     """
 
-    action_type: Literal["get_file"] = "get_file"
+    action_type = "get_file"
     file_location: str
 
     def do(self) -> File:
@@ -605,7 +605,7 @@ class MaximizeWindow(BaseAction):
         MaximizeWindow(window_name="MyWindow").do()
     """
 
-    action_type: Literal["maximize_window"] = "maximize_window"
+    action_type = "maximize_window"
     window_name: str
 
     def do(self, timeout: int = 10):
@@ -630,7 +630,7 @@ class MinimizeWindow(BaseAction):
         MinimizeWindow(window_name="MyWindow").do()
     """
 
-    action_type: Literal["minimize_window"] = "minimize_window"
+    action_type = "minimize_window"
     window_name: str
 
     def do(self, timeout: int = 10):
@@ -655,7 +655,7 @@ class CloseWindow(BaseAction):
         CloseWindow(window_name="MyWindow").do()
     """
 
-    action_type: Literal["close_window"] = "close_window"
+    action_type = "close_window"
     window_name: str
 
     def do(self, timeout: int = 10):
@@ -680,7 +680,7 @@ class ActivateWindow(BaseAction):
         ActivateWindow(window_name="MyWindow").do()
     """
 
-    action_type: Literal["activate_window"] = "activate_window"
+    action_type = "activate_window"
     window_name: str
 
     def do(self, timeout: int = 10):
@@ -709,7 +709,7 @@ class GetText(BaseAction):
 
     """
 
-    action_type: Literal["get_text"] = "get_text"
+    action_type = "get_text"
 
     @backoff.on_exception(
         backoff.expo,
@@ -752,7 +752,7 @@ class PasteText(BaseAction):
 
     """
 
-    action_type: Literal["paste_text"] = "paste_text"
+    action_type = "paste_text"
     keys: Union[str, List[str]]
     followed_by: Optional[str] = Field(default=None)
 

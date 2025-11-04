@@ -1,10 +1,10 @@
-from typing import Optional
+from typing import Any, Optional
 
 
 class AppBaseException(Exception):
     def __init__(
         self,
-        *args,
+        *args: Any,
         type_: Optional[str] = None,
         message: Optional[str] = None,
         traceback: Optional[str] = None,
@@ -23,17 +23,17 @@ class AppBaseException(Exception):
         self.traceback = traceback
 
     # (Optional) make pickling round-trip the extra fields explicitly
-    def __reduce__(self):
+    def __reduce__(self):  # type: ignore
         # Reconstruct with message-only (what Exception expects) and restore extras via state
         return (
             self.__class__,
             (self.message,),
             {"type": self.type, "traceback": self.traceback},
-        )
+        )  # type: ignore
 
-    def __setstate__(self, state):
-        for k, v in state.items():
-            setattr(self, k, v)
+    def __setstate__(self, state):  # type: ignore
+        for k, v in state.items():  # type: ignore
+            setattr(self, k, v)  # type: ignore
 
 
 class ApplicationException(AppBaseException):

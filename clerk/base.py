@@ -2,7 +2,7 @@ import os
 
 import requests
 import backoff
-from typing import Dict, Optional, Self
+from typing import Any, Dict, List, Optional, Self, Tuple
 
 
 from pydantic import BaseModel, model_validator, Field
@@ -10,7 +10,7 @@ from pydantic import BaseModel, model_validator, Field
 from .models.response_model import StandardResponse
 
 
-def giveup_handler(e):
+def giveup_handler(e: Any):
     return (
         isinstance(e, requests.exceptions.HTTPError)
         and e.response is not None
@@ -42,16 +42,15 @@ class BaseClerk(BaseModel):
         (requests.exceptions.RequestException,),
         max_tries=3,
         jitter=None,
-        # on_backoff=backoff_handler,
         giveup=giveup_handler,
     )
     def get_request(
         self,
         endpoint: str,
         headers: Dict[str, str] = {},
-        json: Dict = {},
-        params: Dict = {},
-    ) -> StandardResponse:
+        json: Dict[str, Any] = {},
+        params: Dict[str, Any] = {},
+    ) -> StandardResponse[Dict[str, Any]]:
 
         merged_headers = {**self.headers, **headers}
         url = f"{self.base_url}{endpoint}"
@@ -70,18 +69,17 @@ class BaseClerk(BaseModel):
         (requests.exceptions.RequestException,),
         max_tries=3,
         jitter=None,
-        # on_backoff=backoff_handler,
         giveup=giveup_handler,
     )
     def post_request(
         self,
         endpoint: str,
         headers: Dict[str, str] = {},
-        json: Dict = {},
-        params: Dict = {},
-        data: Dict = None,
-        files: Dict = {},
-    ) -> StandardResponse:
+        json: Dict[str, Any] = {},
+        params: Dict[str, Any] = {},
+        data: Dict[str, Any] | None = None,
+        files: List[Tuple[str, Tuple[str, bytes, str | None]]] | None = None,
+    ) -> StandardResponse[Dict[str, Any]]:
 
         merged_headers = {**self.headers, **headers}
         url = f"{self.base_url}{endpoint}"
@@ -96,7 +94,43 @@ class BaseClerk(BaseModel):
             json=json,
             params=params,
             data=data,
-            files=files,
+            files=files,  # type: ignore
+        )
+        response.raise_for_status()
+
+        return StandardResponse(**response.json())
+
+    @backoff.on_exception(
+        backoff.expo,
+        (requests.exceptions.RequestException,),
+        max_tries=3,
+        jitter=None,
+        giveup=giveup_handler,
+    )
+    def put_request(
+        self,
+        endpoint: str,
+        headers: Dict[str, str] = {},
+        json: Dict[str, Any] = {},
+        params: Dict[str, Any] = {},
+        data: Dict[str, Any] | None = None,
+        files: List[Tuple[str, Tuple[str, bytes, str | None]]] | None = None,
+    ) -> StandardResponse[Dict[str, Any]]:
+
+        merged_headers = {**self.headers, **headers}
+        url = f"{self.base_url}{endpoint}"
+        if self.root_endpoint:
+            url = f"{self.base_url}{self.root_endpoint}{endpoint}"
+
+        # logger.info(f"POST {url} | body={json} | params={params}")
+
+        response = requests.put(
+            url,
+            headers=merged_headers,
+            json=json,
+            params=params,
+            data=data,
+            files=files,  # type: ignore
         )
         response.raise_for_status()
 
