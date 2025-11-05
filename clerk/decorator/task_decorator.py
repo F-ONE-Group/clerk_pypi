@@ -13,7 +13,9 @@ output_pkl: str = "/app/data/output/output.pkl"
 def clerk_code():
     def decorator(func: Callable[[ClerkCodePayload], ClerkCodePayload]):
         @wraps(func)
-        def wrapper(payload: Optional[ClerkCodePayload] = None) -> ClerkCodePayload:
+        def wrapper(
+            payload: Optional[ClerkCodePayload] = None,
+        ) -> ClerkCodePayload | None:
             # 1. Load payload from file if not provided
             use_pickle = False
             output: ClerkCodePayload | BaseException | None = None
@@ -57,6 +59,7 @@ def clerk_code():
                         message=str(e),
                         traceback=traceback.format_exc(),
                     )
+                    output = error_info
 
             # 3. write to output.pkl
             try:
@@ -87,9 +90,6 @@ def clerk_code():
             # 4. Raise if error or return result
             if isinstance(output, Exception):
                 raise output
-
-            if output is None:
-                raise RuntimeError("output object cannot be None")
 
             return output
 
