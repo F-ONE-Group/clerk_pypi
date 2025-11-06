@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 import mimetypes
 import os
 from typing import Any, Dict, List, Optional
@@ -28,6 +29,7 @@ class UploadDocumentRequest(BaseModel):
     message_subject: Optional[str] = None
     message_content: Optional[str] = None
     files: List[str | ParsedFile] = []
+    input_structured_data: Dict[str, Any] | None = None
 
     def _define_files(self):
         formatted_files: List[
@@ -70,12 +72,35 @@ class UploadDocumentRequest(BaseModel):
 
     @property
     def data(self) -> Dict[str, Any]:
+
+        serialized_input_structured_data: str | None = None
+        if self.input_structured_data:
+            try:
+                serialized_input_structured_data = json.dumps(
+                    self.input_structured_data
+                )
+            except Exception as e:
+                raise ValueError(
+                    f"`input_structured_data` is not JSON serializable: {e}"
+                )
+
         return dict(
             project_id=self.project_id,
             message_subject=self.message_subject,
             mesasge_content=self.message_content,
+            input_structured_data=serialized_input_structured_data,
         )
 
     @property
     def files_(self):
         return self._define_files()
+
+
+class GetDocumentsRequest(BaseModel):
+    organization_id: str | None = None
+    project_id: str | None = None
+    start_date: datetime | None = None
+    end_date: datetime | None = None
+    query: str | None = None
+    include_statuses: List[DocumentStatuses] | None = None
+    limit: int = 50

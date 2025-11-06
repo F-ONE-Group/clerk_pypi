@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Literal
 
 from clerk.base import BaseClerk
-from clerk.models.document import Document, UploadDocumentRequest
+from clerk.models.document import Document, GetDocumentsRequest, UploadDocumentRequest
 from .models.file import ParsedFile, UploadFile
 
 
@@ -27,6 +27,27 @@ class Clerk(BaseClerk):
         endpoint = f"/document/{document_id}"
         res = self.get_request(endpoint=endpoint)
         return Document(**res.data[0])
+
+    def get_documents(self, request: GetDocumentsRequest) -> List[Document]:
+        if not any(
+            [
+                request.organization_id,
+                request.project_id,
+                request.start_date,
+                request.end_date,
+                request.query,
+                request.include_statuses,
+            ]
+        ):
+            raise ValueError(
+                "At least one query parameter (organization_id, project_id, start_date, end_date, query, or include_statuses) must be provided."
+            )
+
+        endpoint = f"/documents"
+        params = request.model_dump(mode="json")
+        res = self.get_request(endpoint, params=params)
+
+        return [Document(**d) for d in res.data]
 
     def get_files_document(self, document_id: str) -> List[ParsedFile]:
         endpoint = f"/document/{document_id}/files"
