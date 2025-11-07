@@ -9,3 +9,4 @@ class DocumentStatuses(str, Enum):
     REVIEWED_NEGATIVE = "reviewed_negative"
     EXAMPLE = "example"
     SUPERSEDED = "superseded"
+    REQUIRES_REVIEW = "requires_review"
