@@ -1,4 +1,4 @@
-from typing import Literal, Self, TypeAlias, Union, List, Optional
+from typing import Literal, Self, Union, List, Optional
 from pydantic import BaseModel, Field, model_validator
 from ..client_actor import get_screen
 from ..exceptions.modality.exc import TargetModalityError
@@ -24,7 +24,7 @@ def to_full_img_path(img: Union[str, ImageB64]) -> str:
     return os.path.join(TARGET_IMAGES_PATH, img)
 
 
-ActionTypes: TypeAlias = Literal[
+ActionTypes = Literal[
     "left_click",
     "right_click",
     "middle_click",

@@ -1,22 +1,20 @@
-from typing import Any, List, Literal, Optional, TypeAlias, Union
+from typing import Any, List, Literal, Optional, Union
 from pydantic import BaseModel, Field
 from enum import Enum
 
-from clerk.gui_automation.ui_actions.base import ActionTypes
 
-
-# ActionTypes = Literal[
-#     "left_click",
-#     "right_click",
-#     "middle_click",
-#     "double_click",
-#     "send_keys",
-#     "press_keys",
-#     "hot_keys",
-#     "paste_text",
-#     "get_text",
-#     "scroll",
-# ]
+ActionTypes = Literal[
+    "left_click",
+    "right_click",
+    "middle_click",
+    "double_click",
+    "send_keys",
+    "press_keys",
+    "hot_keys",
+    "paste_text",
+    "get_text",
+    "scroll",
+]
 
 
 class ActionStates(Enum):
@@ -79,7 +77,6 @@ class WindowExecutePayload(BaseModel):
         "close_window",
         "activate_window",
     ]
-
     window_name: str
     timeout: int = Field(default=10)
 
