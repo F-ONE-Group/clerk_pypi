@@ -16,7 +16,7 @@ from clerk.models.ui_operator import UiOperatorTask
 
 class RPAClerk(BaseClerk):
 
-    root_endpoint = "/gui_automation"
+    root_endpoint: str | None = "/gui_automation"
 
     def allocate_remote_device(self, group_name: str, run_id: str):
         endpoint = "/remote_device/allocate"
@@ -59,7 +59,7 @@ class RPAClerk(BaseClerk):
 
 
 class GUIVisionClerk(BaseClerk):
-    root_endpoint = "/gui_automation/vision"
+    root_endpoint: str | None = "/gui_automation/vision"
 
     def find_target(self, screen_b64: str, use_ocr: bool, target_prompt: str):
         endpoint = "/find_target"
@@ -140,7 +140,7 @@ class GUIVisionClerk(BaseClerk):
 
 
 class CourseCorrectorClerk(BaseClerk):
-    root_endpoint = "/gui_automation/course_correction"
+    root_endpoint: str | None = "/gui_automation/course_correction"
 
     def get_corrective_actions(
         self,
