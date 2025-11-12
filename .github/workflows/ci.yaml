@@ -13,6 +13,9 @@ jobs:
       matrix:
         python-version: ["3.11", "3.12"]
 
+    env:
+      __TEST: "true"  
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
