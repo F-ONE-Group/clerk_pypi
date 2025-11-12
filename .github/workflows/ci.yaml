@@ -4,8 +4,8 @@ on:
   pull_request:
     branches: [master]
 jobs:
-  build-and-publish:
-    name: Build and Publish to PyPI
+  test:
+    name: Test
     runs-on: ubuntu-latest
 
     steps:
