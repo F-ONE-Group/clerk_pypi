@@ -146,9 +146,9 @@ client.add_files_to_document(
 )
 ```
 
-## Automation Utilities
+## Custom Code Utilities
 ### Task Decorator
-The `@clerk_code` decorator standardizes how Clerk tasks load inputs and persist outputs when executed by the Clerk runtime. It automatically reads a pickled `ClerkCodePayload` from `/app/data/input/input.pkl`, executes your function, and writes the result (or an `ApplicationException`) to `/app/data/output/output.pkl`.
+The `@clerk_code` decorator standardizes how Clerk tasks load inputs and persist outputs when executed by the Clerk workflow. It automatically reads a pickled `ClerkCodePayload` from `/app/data/input/input.pkl`, executes your function, and writes the result (or an `ApplicationException`) to `/app/data/output/output.pkl`.
 
 ```python
 from clerk.decorator import clerk_code
@@ -191,7 +191,7 @@ assert "Processed" in result.structured_data["status"]
 > **Note:** Refer to `tests/test_task_decorator.py` for additional usage examples covering error propagation and pickle round-trips.
 
 ### GUI Automation Toolkit
-The `clerk.gui_automation` package contains models, actions, and state machines for orchestrating operator workflows. Highlights include:
+The `clerk.gui_automation` package contains models, actions, and state machines for orchestrating UI interactions. Highlights include:
 
 - `BaseAction` and concrete actions for cursor movement, clicks, and keyboard input.
 - `ActionModel` builders that translate payloads into executable UI sequences.
