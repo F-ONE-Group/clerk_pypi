@@ -146,3 +146,19 @@ def test_add_files_to_document(monkeypatch):
     assert captured["endpoint"] == "/document/doc-1/files/upload"
     assert captured["params"] == {"type": "input"}
     assert captured["files"][0][0] == "files"
+
+
+def test_cancel_document_run(monkeypatch):
+    clerk = Clerk(api_key="token")
+    captured: Dict[str, Any] = {}
+
+    def fake_post(self: Clerk, endpoint: str):
+        captured.update(endpoint=endpoint)
+        return StandardResponse(data=[make_document_payload(id="doc-7")])
+
+    monkeypatch.setattr(Clerk, "post_request", fake_post)
+
+    document = clerk.cancel_document_run("doc-7")
+
+    assert captured["endpoint"] == "/document/doc-7/cancel"
+    assert document.id == "doc-7"
