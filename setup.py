@@ -13,7 +13,7 @@ gui_requirements = get_requirements("./clerk/gui_automation")
 
 setup(
     name="clerk-sdk",
-    version="0.4.5",
+    version="0.4.6",
     description="Library for interacting with Clerk",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
@@ -26,7 +26,7 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires=">=3.10",
+    python_requires=">=3.11",
     install_requires=core_requirements,
     extras_require={
         "all": core_requirements + gui_requirements,
