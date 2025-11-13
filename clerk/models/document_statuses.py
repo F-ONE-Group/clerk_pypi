@@ -10,3 +10,4 @@ class DocumentStatuses(str, Enum):
     EXAMPLE = "example"
     SUPERSEDED = "superseded"
     REQUIRES_REVIEW = "requires_review"
+    CANCELLED = "cancelled"
