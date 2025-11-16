@@ -177,8 +177,6 @@ class ActionString(BaseModel):
     def ensure_format(cls, v: Any):
         if not isinstance(v, str):
             raise ValueError("Action string must be a string")
-        if not v.startswith("LeftClick") and not v.startswith("NoAction"):
-            raise ValueError("Action string must start with 'LeftClick' or 'NoAction'")
         if not v.endswith(".do()") and not v.startswith("NoAction"):
             raise ValueError("Action string must end with '.do()'")
         return v
