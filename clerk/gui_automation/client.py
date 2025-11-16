@@ -27,7 +27,7 @@ class RPAClerk(BaseClerk):
         if res.data[0] is None:  # type: ignore
             raise NoClientsAvailable()
 
-        return RemoteDevice(**res.data[0])
+        return RemoteDevice.model_validate(res.data[0])
 
     def deallocate_remote_device(
         self,
@@ -45,17 +45,17 @@ class RPAClerk(BaseClerk):
         res = self.post_request(endpoint=endpoint, json=payload)
         if res.data[0] is None:  # type: ignore
             raise RuntimeError("No coordinates found in the response.")
-        return Coords(**res.data[0])
+        return Coords.model_validate(res.data[0])
 
     def create_ui_operator_task(self, payload: Dict[str, Any]) -> UiOperatorTask:
         endpoint = "/ui_operator"
         res = self.post_request(endpoint=endpoint, json=payload)
-        return UiOperatorTask(**res.data[0])
+        return UiOperatorTask.model_validate(res.data[0])
 
     def get_ui_operator_task(self, id: str) -> UiOperatorTask:
         endpoint = "/ui_operator"
         res = self.get_request(endpoint=endpoint, params={"task_id": id})
-        return UiOperatorTask(**res.data[0])
+        return UiOperatorTask.model_validate(res.data[0])
 
 
 class GUIVisionClerk(BaseClerk):
@@ -71,7 +71,7 @@ class GUIVisionClerk(BaseClerk):
                 "target_prompt": target_prompt,
             },
         )
-        return TargetWithAnchor(**res.data[0])
+        return TargetWithAnchor.model_validate(res.data[0])
 
     def verify_state(
         self, screen_b64: str, use_ocr: bool, possible_states: States
@@ -86,7 +86,7 @@ class GUIVisionClerk(BaseClerk):
             },
         )
 
-        return BaseState(**res.data[0])
+        return BaseState.model_validate(res.data[0])
 
     def answer(
         self,
@@ -106,7 +106,7 @@ class GUIVisionClerk(BaseClerk):
             },
         )
 
-        return output_model.model_validate(**res.data[0])
+        return output_model.model_validate(res.data[0])
 
     def classify_state(
         self, screen_b64: str, use_ocr: bool, possible_states: List[Dict[str, str]]
@@ -121,7 +121,7 @@ class GUIVisionClerk(BaseClerk):
             },
         )
 
-        return BaseState(**res.data[0])
+        return BaseState.model_validate(res.data[0])
 
     def write_action_string(
         self, screen_b64: str, use_ocr: bool, action_prompt: str
@@ -136,7 +136,7 @@ class GUIVisionClerk(BaseClerk):
             },
         )
 
-        return ActionString(**res.data[0])
+        return ActionString.model_validate(res.data[0])
 
 
 class CourseCorrectorClerk(BaseClerk):
@@ -160,4 +160,4 @@ class CourseCorrectorClerk(BaseClerk):
             },
         )
 
-        return ActionString(**res.data[0])
+        return ActionString.model_validate(res.data[0])
