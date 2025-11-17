@@ -24,7 +24,7 @@ from ..client_actor.model import (
 from ..client_actor.exception import GetScreenError
 from ..exceptions.modality.exc import ModalityNotKnownError
 
-MAX_TIME = 5
+MAX_TRIES = 3
 
 
 class File(BaseModel):
@@ -80,7 +80,7 @@ class LeftClick(BaseAction):
     @backoff.on_exception(
         backoff.expo,
         (RuntimeError, GetScreenError),
-        max_time=MAX_TIME,
+        max_tries=MAX_TRIES,
         on_giveup=maybe_engage_operator_ui_action,
         raise_on_giveup=False,  # Exception might be raised in the giveup handler instead
     )
@@ -123,7 +123,7 @@ class RightClick(BaseAction):
     @backoff.on_exception(
         backoff.expo,
         (RuntimeError, GetScreenError),
-        max_time=MAX_TIME,
+        max_tries=MAX_TRIES,
         on_giveup=maybe_engage_operator_ui_action,
         raise_on_giveup=False,  # Exception might be raised in the giveup handler instead
     )
@@ -166,7 +166,7 @@ class MiddleClickAction(BaseAction):
     @backoff.on_exception(
         backoff.expo,
         (RuntimeError, GetScreenError),
-        max_time=MAX_TIME,
+        max_tries=MAX_TRIES,
         on_giveup=maybe_engage_operator_ui_action,
         raise_on_giveup=False,  # Exception might be raised in the giveup handler instead
     )
@@ -209,7 +209,7 @@ class DoubleClick(BaseAction):
     @backoff.on_exception(
         backoff.expo,
         (RuntimeError, GetScreenError),
-        max_time=MAX_TIME,
+        max_tries=MAX_TRIES,
         on_giveup=maybe_engage_operator_ui_action,
         raise_on_giveup=False,  # Exception might be raised in the giveup handler instead
     )
@@ -256,7 +256,7 @@ class Scroll(BaseAction):
     @backoff.on_exception(
         backoff.expo,
         (RuntimeError, GetScreenError),
-        max_time=MAX_TIME,
+        max_tries=MAX_TRIES,
         on_giveup=maybe_engage_operator_ui_action,
         raise_on_giveup=False,  # Exception might be raised in the giveup handler instead
     )
@@ -306,6 +306,13 @@ class SendKeys(BaseAction):
             )
         return self
 
+    @backoff.on_exception(
+        backoff.expo,
+        (RuntimeError, GetScreenError),
+        max_tries=MAX_TRIES,
+        on_giveup=maybe_engage_operator_ui_action,
+        raise_on_giveup=False,  # Exception might be raised in the giveup handler instead
+    )
     def do(self):
         payload: Screenshot
         try:
@@ -356,6 +363,13 @@ class PressKeys(BaseAction):
     action_type: ActionTypes = "press_keys"
     keys: str
 
+    @backoff.on_exception(
+        backoff.expo,
+        (RuntimeError, GetScreenError),
+        max_tries=MAX_TRIES,
+        on_giveup=maybe_engage_operator_ui_action,
+        raise_on_giveup=False,  # Exception might be raised in the giveup handler instead
+    )
     def do(self):
         # provide widget + screen to the action model via http request
         execute_payload = ExecutePayload(
@@ -484,6 +498,13 @@ class ForceCloseApplication(BaseAction):
         description="Process name from task manager. Example: process.exe"
     )
 
+    @backoff.on_exception(
+        backoff.expo,
+        (RuntimeError, GetScreenError),
+        max_tries=MAX_TRIES,
+        on_giveup=maybe_engage_operator_ui_action,
+        raise_on_giveup=False,  # Exception might be raised in the giveup handler instead
+    )
     def do(self):
         payload = ApplicationExecutePayload(
             action_type=self.action_type,
@@ -531,6 +552,13 @@ class SaveFiles(BaseAction):
                 files_details.append(file)
         return files_details
 
+    @backoff.on_exception(
+        backoff.expo,
+        (RuntimeError, GetScreenError),
+        max_tries=MAX_TRIES,
+        on_giveup=maybe_engage_operator_ui_action,
+        raise_on_giveup=False,  # Exception might be raised in the giveup handler instead
+    )
     def do(self):
         payload = SaveFilesExecutePayload(
             action_type=self.action_type,
@@ -558,6 +586,13 @@ class DeleteFiles(BaseAction):
     action_type: ActionTypes = "delete_files"
     files_location: List[str]
 
+    @backoff.on_exception(
+        backoff.expo,
+        (RuntimeError, GetScreenError),
+        max_tries=MAX_TRIES,
+        on_giveup=maybe_engage_operator_ui_action,
+        raise_on_giveup=False,  # Exception might be raised in the giveup handler instead
+    )
     def do(self):
         payload = DeleteFilesExecutePayload(
             action_type=self.action_type, files_location=self.files_location
@@ -714,7 +749,7 @@ class GetText(BaseAction):
     @backoff.on_exception(
         backoff.expo,
         (RuntimeError, GetScreenError),
-        max_time=MAX_TIME,
+        max_tries=MAX_TRIES,
         on_giveup=maybe_engage_operator_ui_action,
         raise_on_giveup=False,  # Exception might be raised in the giveup handler instead
     )
@@ -759,7 +794,7 @@ class PasteText(BaseAction):
     @backoff.on_exception(
         backoff.expo,
         (RuntimeError, GetScreenError),
-        max_time=MAX_TIME,
+        max_tries=MAX_TRIES,
         on_giveup=maybe_engage_operator_ui_action,
         raise_on_giveup=False,  # Exception might be raised in the giveup handler instead
     )

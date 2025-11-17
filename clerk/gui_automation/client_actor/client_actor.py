@@ -42,9 +42,9 @@ async def _perform_action_ws(payload: Dict[str, Any]) -> PerformActionResponse:
 
         # 2. wait for ack message
         try:
-            ack = await asyncio.wait_for(global_ws.recv(), 90)
+            ack = await asyncio.wait_for(global_ws.recv(), 10)
             if ack == "OK":
-                action_info = await asyncio.wait_for(global_ws.recv(), 90)
+                action_info = await asyncio.wait_for(global_ws.recv(), 10)
                 return PerformActionResponse(**json.loads(action_info))
             else:
                 raise RuntimeError("Received ACK != OK")

@@ -21,7 +21,7 @@ from .exceptions import (
     CourseCorrectionImpossible,
     SuccessfulCompletion,
 )
-from ..ui_state_machine.models import ActionString
+from gui_automation.ui_state_inspector.models import ActionString
 from .ai_recovery import CourseCorrector, course_corrector_v1
 from ..client_actor.exception import PerformActionException
 from ..ui_state_inspector.gui_vision import Vision
