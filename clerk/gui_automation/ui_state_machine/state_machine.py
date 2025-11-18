@@ -170,7 +170,7 @@ class ScreenPilot:
                         f"Runtime error in {transition_func.__name__} at action {cls._runtime_error_details[1]}",
                     )
                     logger.debug(
-                        f"Runtime error traceback: {cls._runtime_error_details[0]}",
+                        f"Runtime error traceback: {cls._runtime_error_details[0] if cls._runtime_error_details else 'No traceback available.'}",
                     )
                     screenshot_and_log("Runtime error")
                     logger.info(
@@ -183,7 +183,12 @@ class ScreenPilot:
                     cls._mode = "rollback"
                 except RollbackCompleted as e:
                     logger.info("Rollback completed.")
-                    raise type(e)(cls._runtime_error_details[0])
+                    msg = (
+                        cls._runtime_error_details[0]
+                        if cls._runtime_error_details
+                        else "No traceback available."
+                    )
+                    raise type(e)(msg)
 
             # Ensure that any duplicate transitions have a condition function
             possible_transitions = cls._graph.out_edges(

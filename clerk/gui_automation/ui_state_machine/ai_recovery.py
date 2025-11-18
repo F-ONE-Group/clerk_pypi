@@ -59,6 +59,7 @@ class CourseCorrectorV1(CourseCorrector):
         "small details).",
     )
     clerk_client: CourseCorrectorClerk = CourseCorrectorClerk()
+    latest_feedback: Optional[str] = None
 
     def get_corrective_actions(
         self,
