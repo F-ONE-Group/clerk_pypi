@@ -8,9 +8,18 @@ from typing import List, Tuple, Callable, Optional, Deque, Literal, Union
 import traceback
 from datetime import datetime
 
-from ..ui_actions.actions import ForceCloseApplication
-from ..ui_actions.support import save_screenshot
-from .exceptions import (
+from clerk.client import Clerk
+from clerk.utils import logger
+from clerk.gui_automation.client_actor.exception import PerformActionException
+from clerk.gui_automation.ui_actions.actions import ForceCloseApplication
+from clerk.gui_automation.ui_actions.support import save_screenshot
+from clerk.gui_automation.ui_state_inspector.gui_vision import Vision
+from clerk.gui_automation.ui_state_inspector.models import ActionString
+from clerk.gui_automation.ui_state_machine.ai_recovery import (
+    CourseCorrector,
+    course_corrector_v1,
+)
+from clerk.gui_automation.ui_state_machine.exceptions import (
     BusinessException,
     ScreenPilotException,
     UnplannedTransitionsError,
@@ -21,12 +30,6 @@ from .exceptions import (
     CourseCorrectionImpossible,
     SuccessfulCompletion,
 )
-from ..ui_state_machine.models import ActionString
-from .ai_recovery import CourseCorrector, course_corrector_v1
-from ..client_actor.exception import PerformActionException
-from ..ui_state_inspector.gui_vision import Vision
-from ...client import Clerk
-from ...utils import logger
 
 
 class ScreenPilot:

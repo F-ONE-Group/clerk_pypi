@@ -2,9 +2,8 @@ from typing import Union, List, Optional, Type
 from pydantic import BaseModel, Field
 
 from clerk.gui_automation.client import CourseCorrectorClerk
-
-from ..client_actor.client_actor import get_screen
-from .models import ActionString
+from clerk.gui_automation.client_actor.client_actor import get_screen
+from clerk.gui_automation.ui_state_inspector.models import ActionString
 
 
 class CourseCorrector(BaseModel):
