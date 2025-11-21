@@ -42,7 +42,11 @@ class RPAClerk(BaseClerk):
 
     def get_coordinates(self, payload: Dict[str, Any]) -> Coords:
         endpoint = "/action_model/get_coordinates"
-        res = self.post_request(endpoint=endpoint, json=payload)
+        try:
+            res = self.post_request(endpoint=endpoint, json=payload)
+        except Exception as e:
+            # We always want to be raising RuntimeError here to be caught in the do() method
+            raise RuntimeError(f"Failed to get coordinates: {str(e)}") from e
         if res.data[0] is None:  # type: ignore
             raise RuntimeError("No coordinates found in the response.")
         return Coords.model_validate(res.data[0])

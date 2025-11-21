@@ -66,7 +66,7 @@ class BaseClerk(BaseModel):
 
     @backoff.on_exception(
         backoff.expo,
-        (requests.exceptions.RequestException,),
+        Exception,
         max_tries=3,
         jitter=None,
         giveup=giveup_handler,
