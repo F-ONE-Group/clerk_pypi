@@ -32,6 +32,28 @@ REMOTE_DEVICE_ALLOCATION_MAX_TRIES = int(
 )
 
 
+async def connect_to_ws(uri: str) -> ClientConnection:
+    # Same knobs as before, just via the new connect()
+    return await connect(uri, max_size=2**23, ping_timeout=3600)
+
+
+async def close_ws_connection(ws_conn: ClientConnection):
+    await ws_conn.close()
+
+
+async def reconnect_ws():
+    global global_ws
+
+    remote_device_name = os.getenv("REMOTE_DEVICE_NAME")
+    if not remote_device_name:
+        raise RuntimeError(
+            "REMOTE_DEVICE_NAME environmental variable is required for reconnecting WebSocket."
+        )
+    wss_token = clerk_client.get_wss_token()
+    uri = f"{wss_uri}/{remote_device_name}/publisher?token={wss_token}"
+    global_ws = await connect_to_ws(uri)
+
+
 def _allocate_remote_device(
     clerk_client: RPAClerk, group_name: str, run_id: str
 ) -> RemoteDevice:
@@ -83,17 +105,11 @@ def gui_automation(
     if not group_name:
         raise ValueError("REMOTE_DEVICE_GROUP environmental variable is required.")
 
-    async def connect_to_ws(uri: str) -> ClientConnection:
-        # Same knobs as before, just via the new connect()
-        return await connect(uri, max_size=2**23, ping_timeout=3600)
-
-    async def close_ws_connection(ws_conn: ClientConnection):
-        await ws_conn.close()
-
     def decorator(func: Callable):
         @functools.wraps(func)
         def wrapper(payload: ClerkCodePayload, *args, **kwargs):
             global global_ws
+
             force_deallocate = False
             os.environ["_document_id"] = payload.document.id
             os.environ["_run_id"] = payload.run_id
