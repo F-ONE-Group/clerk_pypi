@@ -50,7 +50,7 @@ class BaseClerk(BaseModel):
         headers: Dict[str, str] = {},
         json: Dict[str, Any] = {},
         params: Dict[str, Any] = {},
-    ) -> StandardResponse[Dict[str, Any]]:
+    ) -> StandardResponse[Any]:
 
         merged_headers = {**self.headers, **headers}
         url = f"{self.base_url}{endpoint}"

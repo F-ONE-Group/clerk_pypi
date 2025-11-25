@@ -1,12 +1,14 @@
 import asyncio
 import json
 import os
+import backoff
 from typing import Any, Dict, Union
+
 
 import pydantic
 import requests
 
-
+from websockets import WebSocketException
 from .model import (
     ExecutePayload,
     DeleteFilesExecutePayload,
@@ -15,12 +17,24 @@ from .model import (
     WindowExecutePayload,
     GetFileExecutePayload,
 )
-import backoff
 
 from .model import PerformActionResponse, ActionStates
 from .exception import PerformActionException, GetScreenError
 
 
+async def before_retry(details: Any):
+    from ..decorators.gui_automation import reconnect_ws
+
+    await reconnect_ws()
+
+
+@backoff.on_exception(
+    backoff.constant,
+    WebSocketException,
+    interval=1,
+    max_tries=5,
+    on_backoff=before_retry,
+)
 async def _perform_action_ws(payload: Dict[str, Any]) -> PerformActionResponse:
     """Perform an action over a WebSocket connection.
 
@@ -48,6 +62,8 @@ async def _perform_action_ws(payload: Dict[str, Any]) -> PerformActionResponse:
                 return PerformActionResponse(**json.loads(action_info))
             else:
                 raise RuntimeError("Received ACK != OK")
+        except WebSocketException as e:
+            raise e
         except asyncio.TimeoutError:
             raise RuntimeError("The ack message did not arrive.")
     else:

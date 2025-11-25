@@ -40,6 +40,11 @@ class RPAClerk(BaseClerk):
             json={"id": remote_device.id, "name": remote_device.name, "run_id": run_id},
         )
 
+    def get_wss_token(self) -> str:
+        endpoint = "/wss_token"
+        res = self.get_request(endpoint=endpoint)
+        return res.data[0]
+
     def get_coordinates(self, payload: Dict[str, Any]) -> Coords:
         endpoint = "/action_model/get_coordinates"
         try:
