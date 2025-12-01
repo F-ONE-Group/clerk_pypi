@@ -81,6 +81,11 @@ class ClerkDocument(BaseClerk):
         )
         return Document(**res.data[0])
 
+    def reprocess_document(self, document_id: str) -> Document:
+        endpoint = f"/document/{document_id}/reprocess"
+        res = self.put_request(endpoint=endpoint)
+        return Document(**res.data[0])
+
     def cancel_document_run(self, document_id: str) -> Document:
         endpoint = f"/document/{document_id}/cancel"
         res = self.post_request(endpoint=endpoint)
