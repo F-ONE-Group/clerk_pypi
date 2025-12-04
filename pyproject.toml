@@ -35,6 +35,10 @@ all = [
 
 [project.scripts]
 gui_test_session = "clerk.development.gui.test_session:main"
+fetch_schema = "clerk.development.schema.fetch_schema:main"
 
 [project.urls]
 Homepage = "https://github.com/F-ONE-Group/clerk_pypi"
+
+[tool.hatch.build.targets.wheel]
+packages = ["clerk"]
