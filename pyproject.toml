@@ -34,8 +34,7 @@ all = [
 ]
 
 [project.scripts]
-gui_test_session = "clerk.development.gui.test_session:main"
-fetch_schema = "clerk.development.schema.fetch_schema:main"
+clerk = "clerk.development.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/F-ONE-Group/clerk_pypi"
