@@ -9,6 +9,18 @@ from clerk.client import Clerk
 from clerk.exceptions.exceptions import ApplicationException
 
 
+def safe_print(message: str) -> None:
+    """Print message with fallback for terminals that don't support Unicode."""
+    try:
+        print(message)
+    except UnicodeEncodeError:
+        # Fallback: remove emojis and special characters
+        import re
+
+        ascii_message = re.sub(r"[^\x00-\x7F]+", "", message)
+        print(ascii_message)
+
+
 class VariableTypes(str, Enum):
     STRING = "string"
     NUMBER = "number"
@@ -309,9 +321,9 @@ def generate_models_from_schema(
 def main_with_args(project_id: str, project_root: Path | None = None):
     """Main logic that can be called from CLI or programmatically"""
     try:
-        print(f"Fetching schema for project: {project_id}")
+        safe_print(f"Fetching schema for project: {project_id}")
         variables = fetch_schema(project_id)
-        print(f"Found {len(variables)} variables")
+        safe_print(f"Found {len(variables)} variables")
 
         # Always save to schema.py in project root
         if project_root is None:
@@ -320,10 +332,10 @@ def main_with_args(project_id: str, project_root: Path | None = None):
 
         generate_models_from_schema(variables, output_file)
 
-        print(f"✅ Schema generated and written to: {output_file}")
+        safe_print(f"✅ Schema generated and written to: {output_file}")
     except ApplicationException as e:
-        print(f"❌ Error: {e.message}")
+        safe_print(f"❌ Error: {e.message}")
         raise
     except Exception as e:
-        print(f"❌ Unexpected error: {str(e)}")
+        safe_print(f"❌ Unexpected error: {str(e)}")
         raise

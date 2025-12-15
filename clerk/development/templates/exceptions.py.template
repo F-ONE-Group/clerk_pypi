@@ -1,0 +1,16 @@
+"""
+# Instructions
+
+Define custom exceptions for ScreenPilot here.
+- Any exception will be caught by ScreenPilot's main loop, activating rollback mode and course correction.
+- Raise subclasses of BusinessException to indicate business process conditions that should not trigger rollbacks.
+
+# Example
+```python
+class CustomError(BusinessException):
+    pass
+```
+
+"""
+
+from clerk.gui_automation.ui_state_machine.exceptions import BusinessException

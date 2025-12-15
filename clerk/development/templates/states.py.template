@@ -1,0 +1,15 @@
+"""
+# Instructions
+
+Use this file to define the various states of ScreenPilot's UI state machine. Each state represents a distinct screen or condition in the GUI automation process.
+
+# Example
+```python
+
+@state(start_allowed=False, end_allowed=False)
+class InvoiceReview:
+    description = "Detailed description of the Invoice Review state."
+
+"""
+
+from clerk.gui_automation.ui_state_machine import state
