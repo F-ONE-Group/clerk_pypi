@@ -7,6 +7,9 @@ import importlib
 from typing import Any
 
 from dotenv import load_dotenv
+from rich.console import Console
+from rich.panel import Panel
+from rich.text import Text
 
 from clerk.gui_automation.ui_actions.actions import (    
     File, 
@@ -36,19 +39,8 @@ from clerk.gui_automation.ui_state_machine.state_machine import ScreenPilot
 from clerk.gui_automation.ui_state_inspector.gui_vision import Vision, BaseState
 
 
-# ANSI color codes for terminal
-class Colors:
-    HEADER = "\033[95m"
-    OKBLUE = "\033[94m"
-    OKCYAN = "\033[96m"
-    OKGREEN = "\033[92m"
-    WARNING = "\033[93m"
-    FAIL = "\033[91m"
-    ENDC = "\033[0m"
-    BOLD = "\033[1m"
-    UNDERLINE = "\033[4m"
-    GRAY = "\033[90m"
-
+# Initialize rich console
+console = Console()
 
 # Store session state
 SESSION_FILE = Path(".test_session_active")
@@ -117,7 +109,10 @@ def classify_current_state() -> tuple[bool, str, str]:
     """Classify the current GUI state using Vision. Reloads states first."""
     try:
         # Always reload states to pick up any changes
-        reload_states()
+        with console.status("[dim]Reloading states...", spinner="dots") as status:
+            reload_states()
+            status.update("[green]✓[/green] Reloaded states")
+            time.sleep(0.3)  # Brief pause to show success
 
         states = get_registered_states()
 
@@ -134,8 +129,13 @@ def classify_current_state() -> tuple[bool, str, str]:
             for name, data in states.items()
         ]
 
-        # Pass output_model=None to get tuple instead of BaseModel
-        result: BaseState = VISION_CLIENT.classify_state(possible_states)  # type: ignore[arg-type]
+        with console.status(
+            "[dim]Classifying current state (waiting for AI)...", spinner="dots"
+        ):
+            # Pass output_model=None to get tuple instead of BaseModel
+            result: BaseState = VISION_CLIENT.classify_state(possible_states)  # type: ignore[arg-type]
+
+        console.print("[green]✓[/green] Classification complete")
         return True, result.id, result.description
     except Exception:
         return False, "", f"Classification failed: {traceback.format_exc()}"
@@ -143,22 +143,20 @@ def classify_current_state() -> tuple[bool, str, str]:
 
 def print_welcome():
     """Print welcome message"""
-    print(
-        f"\n{Colors.BOLD}{Colors.OKCYAN}╔══════════════════════════════════════════════════════════════════════════════╗"
+    title = Text("GUI Automation Interactive Test Session", style="bold cyan")
+    panel = Panel(title, border_style="cyan", padding=(1, 2))
+    console.print()
+    console.print(panel)
+    console.print()
+    console.print("[bold blue]Commands:[/bold blue]")
+    console.print(
+        "  [dim]classify_state: Classify current GUI state (auto-reloads states)[/dim]"
     )
-    print(
-        f"║                   GUI Automation Interactive Test Session                    ║"
-    )
-    print(
-        f"╚══════════════════════════════════════════════════════════════════════════════╝{Colors.ENDC}\n"
-    )
-    print(f"{Colors.OKBLUE}Commands:{Colors.ENDC}")
-    print(
-        f"  {Colors.GRAY}classify_state: Classify current GUI state (auto-reloads states)"
-    )
-    print(f"  exit: End session{Colors.ENDC}\n")
-    print(f"{Colors.OKBLUE}Testing actions:{Colors.ENDC}")
-    print(f"  {Colors.GRAY}Type an action and press Enter to execute{Colors.ENDC}\n")
+    console.print("  [dim]exit: End session[/dim]")
+    console.print()
+    console.print("[bold blue]Testing actions:[/bold blue]")
+    console.print("  [dim]Type an action and press Enter to execute[/dim]")
+    console.print()
 
 
 def perform_single_action(action_string: str) -> tuple[bool, Any, str]:
@@ -184,28 +182,30 @@ def handle_special_command(command: str) -> tuple[bool, str]:
     if command == "classify_state":
         success, state_id, description = classify_current_state()
         if success:
-            return (
-                True,
-                f"{Colors.OKGREEN}Current State:{Colors.ENDC} {Colors.BOLD}{state_id}{Colors.ENDC}\n  {Colors.GRAY}{description}{Colors.ENDC}",
-            )
+            # Return empty string since console.print handles it
+            console.print()
+            console.print(f"[green]Current State:[/green] [bold]{state_id}[/bold]")
+            console.print(f"  [dim]{description}[/dim]")
+            console.print()
+            return True, ""
         else:
-            return True, f"{Colors.FAIL}{description}{Colors.ENDC}"
+            console.print(f"[red]{description}[/red]")
+            return True, ""
 
     return False, ""
 
 
 def format_result(result):
-    """Format action result for display"""
+    """Format action result for rich display"""
     if result is None:
-        return f"{Colors.GRAY}(no return value){Colors.ENDC}"
+        return "[dim](no return value)[/dim]"
     elif isinstance(result, bool):
-        return f"{Colors.OKGREEN if result else Colors.WARNING}{result}{Colors.ENDC}"
+        color = "green" if result else "yellow"
+        return f"[{color}]{result}[/{color}]"
     elif isinstance(result, (str, int, float)):
-        return f"{Colors.OKCYAN}{repr(result)}{Colors.ENDC}"
+        return f"[cyan]{repr(result)}[/cyan]"
     else:
-        return (
-            f"{Colors.OKCYAN}{type(result).__name__}: {str(result)[:100]}{Colors.ENDC}"
-        )
+        return f"[cyan]{type(result).__name__}: {str(result)[:100]}[/cyan]"
 
 
 @gui_automation()
@@ -215,7 +215,11 @@ def start_interactive_session(payload: ClerkCodePayload):
     action_count = 0
 
     print_welcome()
-    print(f"{Colors.OKGREEN}✓{Colors.ENDC} WebSocket connection established\n")
+
+    # The gui_automation decorator establishes the connection before this function runs
+    # By the time we get here, connection is already established
+    console.print("[green]✓[/green] WebSocket connection established")
+    console.print()
 
     # Mark session as active
     SESSION_FILE.touch()
@@ -224,8 +228,8 @@ def start_interactive_session(payload: ClerkCodePayload):
         while True:
             # Get input from user
             try:
-                action_string = input(
-                    f"{Colors.BOLD}{Colors.OKBLUE}command/action>{Colors.ENDC} "
+                action_string = console.input(
+                    "[bold blue]command/action>[/bold blue] "
                 ).strip()
             except EOFError:
                 break
@@ -241,7 +245,8 @@ def start_interactive_session(payload: ClerkCodePayload):
             # Check if it's a special command
             is_special, message = handle_special_command(action_string)
             if is_special:
-                print(f"\n{message}\n")
+                if message:  # Only print if there's a message
+                    console.print(message)
                 continue
 
             # Record action
@@ -249,12 +254,22 @@ def start_interactive_session(payload: ClerkCodePayload):
                 {"timestamp": datetime.now(), "action": action_string, "success": None}
             )
 
-            # Execute action
+            # Execute action with status
             start_time = time.time()
-            print(f"\n{Colors.GRAY}▶ Executing...{Colors.ENDC}")
 
-            success, result, error_msg = perform_single_action(action_string)
-            execution_time = time.time() - start_time
+            with console.status(
+                "[dim]Executing action (waiting for tool)...", spinner="dots"
+            ):
+                success, result, error_msg = perform_single_action(action_string)
+                execution_time = time.time() - start_time
+
+            # Show completion message
+            if success:
+                console.print(
+                    f"[green]✓[/green] Action completed ({execution_time:.3f}s)"
+                )
+            else:
+                console.print(f"[red]✗[/red] Action failed ({execution_time:.3f}s)")
 
             # Update history
             ACTION_HISTORY[-1]["success"] = success
@@ -262,41 +277,35 @@ def start_interactive_session(payload: ClerkCodePayload):
             ACTION_HISTORY[-1]["result"] = result
 
             # Display result
-            print(
-                f"{Colors.GRAY}⏱ Execution time: {execution_time:.3f}s{Colors.ENDC}\n"
-            )
-
             if success:
                 action_count += 1
-                print(f"{Colors.OKGREEN}✓ SUCCESS{Colors.ENDC}")
                 if result is not None:
-                    print(f"  Result: {format_result(result)}")
+                    console.print(f"  Result: {format_result(result)}")
             else:
-                print(f"{Colors.FAIL}✗ FAILED{Colors.ENDC}")
-                print(f"{Colors.FAIL}{error_msg}{Colors.ENDC}")
+                console.print(f"[red]{error_msg}[/red]")
 
-            print()  # Extra newline for spacing
+            console.print()  # Extra newline for spacing
 
     except KeyboardInterrupt:
-        print(f"\n\n{Colors.WARNING}Session interrupted by user{Colors.ENDC}")
+        console.print("\n\n[yellow]Session interrupted by user[/yellow]")
     finally:
         if SESSION_FILE.exists():
             SESSION_FILE.unlink()
 
         # Print summary
-        print(f"\n{Colors.BOLD}{'=' * 80}{Colors.ENDC}")
-        print(f"{Colors.BOLD}Session Summary{Colors.ENDC}")
-        print(f"{Colors.BOLD}{'=' * 80}{Colors.ENDC}")
-        print(f"  Total actions executed: {action_count}")
-        print(f"  Session duration: {datetime.now() - session_start}")
+        console.print("\n[bold]" + "=" * 80 + "[/bold]")
+        console.print("[bold]Session Summary[/bold]")
+        console.print("[bold]" + "=" * 80 + "[/bold]")
+        console.print(f"  Total actions executed: {action_count}")
+        console.print(f"  Session duration: {datetime.now() - session_start}")
 
         if ACTION_HISTORY:
             successful = sum(1 for a in ACTION_HISTORY if a.get("success"))
             failed = len(ACTION_HISTORY) - successful
-            print(f"  Successful: {Colors.OKGREEN}{successful}{Colors.ENDC}")
-            print(f"  Failed: {Colors.FAIL}{failed}{Colors.ENDC}")
+            console.print(f"  Successful: [green]{successful}[/green]")
+            console.print(f"  Failed: [red]{failed}[/red]")
 
-        print(f"\n{Colors.OKBLUE}WebSocket connection closed{Colors.ENDC}\n")
+        console.print("\n[blue]WebSocket connection closed[/blue]\n")
 
 
 def main():
@@ -308,7 +317,10 @@ def main():
         structured_data={},
         run_id="test-session-run",
     )
-    start_interactive_session(payload)
+
+    # Show spinner while the decorator establishes WebSocket connection
+    with console.status("[dim]Waiting for tool to connect...", spinner="dots"):
+        start_interactive_session(payload)
 
 
 if __name__ == "__main__":

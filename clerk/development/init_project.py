@@ -3,16 +3,9 @@ import sys
 from pathlib import Path
 from typing import Optional
 
+from rich.console import Console
 
-def safe_print(message: str) -> None:
-    """Print message with fallback for terminals that don't support Unicode."""
-    try:
-        print(message)
-    except UnicodeEncodeError:
-        # Fallback: remove emojis and special characters
-        import re
-        ascii_message = re.sub(r'[^\x00-\x7F]+', '', message)
-        print(ascii_message)
+console = Console()
 
 
 def read_template(template_name: str) -> str:
@@ -35,18 +28,18 @@ def create_main_py(target_dir: Path, with_gui: bool = False) -> None:
         with_gui: Whether to include GUI automation functionality
     """
     main_path = target_dir / "main.py"
-    
+
     if main_path.exists():
-        safe_print(f"⚠️  {main_path} already exists, skipping...")
+        console.print(f"[yellow]⚠[/yellow]  {main_path} already exists, skipping...")
         return
-    
+
     template_name = "main_gui.py.template" if with_gui else "main_basic.py.template"
     content = read_template(template_name)
-    
+
     with open(main_path, "w", encoding='utf-8') as f:
         f.write(content)
-    
-    safe_print(f"✅ Created {main_path}")
+
+    console.print(f"[green]✓[/green] Created {main_path}")
 
 
 def create_gui_structure(target_dir: Path) -> None:
@@ -55,15 +48,15 @@ def create_gui_structure(target_dir: Path) -> None:
     Args:
         target_dir: Target directory where gui folder should be created
     """
-    safe_print("\n🔧 Creating GUI automation structure...")
-    
+    console.print("\n[dim]Creating GUI automation structure...[/dim]")
+
     gui_path = target_dir / "gui"
     gui_path.mkdir(parents=True, exist_ok=True)
-    
+
     # Create targets subfolder
     targets_path = gui_path / "targets"
     targets_path.mkdir(exist_ok=True)
-    
+
     # Template files to create
     template_files = [
         "states.py.template",
@@ -71,21 +64,23 @@ def create_gui_structure(target_dir: Path) -> None:
         "rollbacks.py.template",
         "exceptions.py.template",
     ]
-    
+
     for template_name in template_files:
         output_name = template_name.replace(".template", "")
         output_path = gui_path / output_name
-        
+
         if output_path.exists():
-            safe_print(f"⚠️  {output_path} already exists, skipping...")
+            console.print(
+                f"[yellow]⚠[/yellow]  {output_path} already exists, skipping..."
+            )
             continue
-        
+
         content = read_template(template_name)
-        
+
         with open(output_path, "w", encoding='utf-8') as f:
             f.write(content)
-    
-    safe_print(f"✅ Created GUI automation structure in {gui_path}")
+
+    console.print(f"[green]✓[/green] Created GUI automation structure in {gui_path}")
 
 
 def init_project(
@@ -100,39 +95,39 @@ def init_project(
     """
     if target_dir is None:
         target_dir = Path.cwd() / "src"
-    
+
     # Ensure target directory exists
     target_dir.mkdir(parents=True, exist_ok=True)
-    
-    safe_print("=" * 60)
-    safe_print("🚀 Initializing Clerk Custom Code Project")
-    safe_print("=" * 60)
+
+    console.print("[bold]" + "=" * 60 + "[/bold]")
+    console.print("[bold cyan]Initializing Clerk Custom Code Project[/bold cyan]")
+    console.print("[bold]" + "=" * 60 + "[/bold]")
     if with_gui:
-        safe_print("📱 GUI Automation: ENABLED")
+        console.print("[cyan]GUI Automation: ENABLED[/cyan]")
     else:
-        safe_print("📱 GUI Automation: DISABLED")
-    safe_print("=" * 60)
-    
+        console.print("[cyan]GUI Automation: DISABLED[/cyan]")
+    console.print("[bold]" + "=" * 60 + "[/bold]")
+
     # Create main.py
     create_main_py(target_dir, with_gui=with_gui)
-    
+
     # Create GUI structure if requested
     if with_gui:
         create_gui_structure(target_dir)
-    
-    safe_print("\n" + "=" * 60)
-    safe_print("🎉 Project initialization completed!")
-    safe_print("=" * 60)
+
+    console.print("\n[bold]" + "=" * 60 + "[/bold]")
+    console.print("[bold green]Project initialization completed![/bold green]")
+    console.print("[bold]" + "=" * 60 + "[/bold]")
     if with_gui:
-        safe_print("✅ GUI automation structure created")
-        safe_print("✅ main.py configured with ScreenPilot")
+        console.print("[green]✓[/green] GUI automation structure created")
+        console.print("[green]✓[/green] main.py configured with ScreenPilot")
     else:
-        safe_print("✅ Basic main.py created")
-    safe_print("\n💡 Next steps:")
-    safe_print("   1. Configure your .env file with CLERK_API_KEY and PROJECT_ID")
-    safe_print("   2. Run 'clerk fetch-schema' to generate schema models")
-    safe_print("   3. Start developing your custom code!")
-    safe_print("=" * 60)
+        console.print("[green]✓[/green] Basic main.py created")
+    console.print("\n[cyan]Next steps:[/cyan]")
+    console.print("   1. Configure your .env file with CLERK_API_KEY and PROJECT_ID")
+    console.print("   2. Run 'clerk fetch-schema' to generate schema models")
+    console.print("   3. Start developing your custom code!")
+    console.print("[bold]" + "=" * 60 + "[/bold]")
 
 
 def main_with_args(gui_automation: bool = False, target_dir: Optional[str] = None):
@@ -146,7 +141,7 @@ def main_with_args(gui_automation: bool = False, target_dir: Optional[str] = Non
         target_path = Path(target_dir) if target_dir else None
         init_project(target_dir=target_path, with_gui=gui_automation)
     except Exception as e:
-        safe_print(f"\n❌ Error during project initialization: {e}")
+        console.print(f"\n[red]✗ Error during project initialization: {e}[/red]")
         sys.exit(1)
 
 

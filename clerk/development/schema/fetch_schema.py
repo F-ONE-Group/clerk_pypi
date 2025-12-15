@@ -5,20 +5,12 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 import requests
 
+from rich.console import Console
+
 from clerk.client import Clerk
 from clerk.exceptions.exceptions import ApplicationException
 
-
-def safe_print(message: str) -> None:
-    """Print message with fallback for terminals that don't support Unicode."""
-    try:
-        print(message)
-    except UnicodeEncodeError:
-        # Fallback: remove emojis and special characters
-        import re
-
-        ascii_message = re.sub(r"[^\x00-\x7F]+", "", message)
-        print(ascii_message)
+console = Console()
 
 
 class VariableTypes(str, Enum):
@@ -321,21 +313,27 @@ def generate_models_from_schema(
 def main_with_args(project_id: str, project_root: Path | None = None):
     """Main logic that can be called from CLI or programmatically"""
     try:
-        safe_print(f"Fetching schema for project: {project_id}")
-        variables = fetch_schema(project_id)
-        safe_print(f"Found {len(variables)} variables")
+        with console.status(
+            f"[dim]Fetching schema for project: {project_id}...", spinner="dots"
+        ):
+            variables = fetch_schema(project_id)
+
+        console.print(f"[green]✓[/green] Found {len(variables)} variables")
 
         # Always save to schema.py in project root
         if project_root is None:
             project_root = Path.cwd()
         output_file = project_root / "schema.py"
 
-        generate_models_from_schema(variables, output_file)
+        with console.status("[dim]Generating Pydantic models...", spinner="dots"):
+            generate_models_from_schema(variables, output_file)
 
-        safe_print(f"✅ Schema generated and written to: {output_file}")
+        console.print(
+            f"[green]✓[/green] Schema generated and written to: {output_file}"
+        )
     except ApplicationException as e:
-        safe_print(f"❌ Error: {e.message}")
+        console.print(f"[red]✗ Error: {e.message}[/red]")
         raise
     except Exception as e:
-        safe_print(f"❌ Unexpected error: {str(e)}")
+        console.print(f"[red]✗ Unexpected error: {str(e)}[/red]")
         raise
