@@ -104,7 +104,7 @@ wheels = [
 
 [[package]]
 name = "clerk-sdk"
-version = "0.5.0"
+version = "0.5.0.dev0"
 source = { editable = "." }
 dependencies = [
     { name = "backoff" },

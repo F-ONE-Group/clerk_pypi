@@ -1,4 +1,4 @@
 from .client import Clerk
 
 
-__version__ = "0.4.17"
+__version__ = "0.5.0.dev0"
