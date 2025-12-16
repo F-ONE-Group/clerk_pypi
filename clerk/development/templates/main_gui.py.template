@@ -1,0 +1,52 @@
+from typing import Dict
+
+from clerk.decorator import clerk_code
+from clerk.decorator.models import ClerkCodePayload
+from clerk.gui_automation.decorators import gui_automation
+from clerk.gui_automation.ui_state_machine import ScreenPilot, SuccessfulCompletion
+from clerk.utils import logger
+
+from src.gui.states import *
+from src.gui.transitions import *
+from src.gui.rollbacks import *
+from src.schema import StructuredData  # use `clerk schema fetch` to update the schema
+
+@clerk_code()
+@gui_automation()
+def main(payload: ClerkCodePayload):
+    """Main program"""
+
+    data = StructuredData.model_validate(payload.structured_data)
+    logger.info("Custom code started")    
+
+    def goal_function(current_state: str, process_variables: StructuredData) -> None:
+        """
+        Goal function for the state machine.
+        Args:
+            current_state (str): The current state of the state machine
+            (you can provide additional arguments as needed, e.g. order: dict)
+        Raises:
+            ScreenPilotOutcome: The outcome of the state machine
+        """
+        if True:  # Use an actual condition based on state and/or process variables to complete the automation
+            raise SuccessfulCompletion()
+
+    ai_recovery_instructions = "\\n - ".join(
+        [
+            "Instructions on how to deal with possible issues using Clerk UI Actions.",            
+        ]
+    )
+
+    ScreenPilot.configure(ai_recovery_instructions=ai_recovery_instructions)
+    exit_reason = ScreenPilot.run(
+        goal_function, process_variables=process_variables, doc_id=payload.document.id
+    )
+        
+
+    logger.info("Custom code completed")
+    payload.structured_data = data.model_dump()  # Return variables to Clerk
+    return payload
+
+
+if __name__ == "__main__":
+    main()

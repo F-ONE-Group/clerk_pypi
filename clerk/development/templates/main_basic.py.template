@@ -1,0 +1,22 @@
+from clerk.decorator import clerk_code
+from clerk.decorator.models import ClerkCodePayload
+from clerk.utils import logger
+
+from src.schema import StructuredData
+
+@clerk_code()
+def main(payload: ClerkCodePayload):
+    """Main program"""
+
+    data = StructuredData.model_validate(payload.structured_data)
+    logger.info("Custom code started")
+    
+    # TODO: Implement your custom code logic here
+    
+    logger.info("Custom code completed")
+    payload.structured_data = data.model_dump()
+    return payload
+
+
+if __name__ == "__main__":
+    main()

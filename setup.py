@@ -13,12 +13,12 @@ gui_requirements = get_requirements("./clerk/gui_automation")
 
 setup(
     name="clerk-sdk",
-    version="0.4.17",
+    version="0.5.0.dev0",
     description="Library for interacting with Clerk",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    author="F-ONE Group",
-    author_email="admin@f-one.group",
+    author="F-One",
+    author_email="contact@f-one.group",
     url="https://github.com/F-ONE-Group/clerk_pypi",
     packages=find_packages(),
     classifiers=[

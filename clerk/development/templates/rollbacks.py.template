@@ -1,0 +1,17 @@
+"""
+# Instructions
+
+Use this file to define rollback procedures for ScreenPilot. Rollbacks behave like transitions, but are triggered in rollback mode when exceptions occur.
+
+# Example
+```python
+@rollback("State1", "State2")
+def perform_rollback():
+    # Perform necessary actions to revert from State1 to State2
+    # Optionally, save a screenshot or log information
+    raise RollbackCompleted()
+```
+
+"""
+
+from clerk.gui_automation.ui_state_machine import rollback, RollbackCompleted

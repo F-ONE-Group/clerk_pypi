@@ -1,0 +1,26 @@
+"""
+# Instructions
+
+Use this file to define transitions between different states in ScreenPilot's UI state machine. Each transition represents a change from one state to another.
+
+# Example: regular transition
+```python
+@transition("StateA", "StateB")
+def go_to_state_b() -> None:
+    # Actions to perform during the transition from StateA to StateB
+    pass
+```
+
+# Example: conditional transition
+```python
+def condition() -> bool:
+    return True  # or some condition logic
+
+@transition("StateA", "StateB", condition=condition)
+def conditional_transition() -> None:
+    # Actions to perform during the conditional transition from StateA to StateB
+    pass
+```
+"""
+
+from clerk.gui_automation.ui_state_machine import transition

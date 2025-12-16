@@ -1,3 +1,44 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "clerk-sdk"
+version = "0.5.0.dev0"
+description = "Library for interacting with Clerk"
+readme = "README.md"
+authors = [
+    { name = "F-One", email = "contact@f-one.group" }
+]
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "pydantic>=2.0.0,<3.0.0",
+    "backoff>=2.0.0,<3.0.0",
+    "requests>=2.32.3,<3.0.0",
+    "python-dotenv>=1.0.0",
+    "rich>=14.2.0",
+]
+
+[project.optional-dependencies]
+gui-automation = [
+    "networkx>=3.5.0,<4.0.0",
+    "websockets>=15.0.1",
+]
+all = [
+    "networkx>=3.5.0,<4.0.0",
+    "websockets>=15.0.1",
+]
+
+[project.scripts]
+clerk = "clerk.development.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/F-ONE-Group/clerk_pypi"
+
+[tool.hatch.build.targets.wheel]
+packages = ["clerk"]
