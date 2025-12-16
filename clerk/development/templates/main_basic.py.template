@@ -2,7 +2,7 @@ from clerk.decorator import clerk_code
 from clerk.decorator.models import ClerkCodePayload
 from clerk.utils import logger
 
-from schema import StructuredData
+from src.schema import StructuredData
 
 @clerk_code()
 def main(payload: ClerkCodePayload):

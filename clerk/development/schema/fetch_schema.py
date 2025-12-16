@@ -323,7 +323,7 @@ def main_with_args(project_id: str, project_root: Path | None = None):
         # Always save to schema.py in project root
         if project_root is None:
             project_root = Path.cwd()
-        output_file = project_root / "schema.py"
+        output_file = project_root / "src" / "schema.py"
 
         with console.status("[dim]Generating Pydantic models...", spinner="dots"):
             generate_models_from_schema(variables, output_file)

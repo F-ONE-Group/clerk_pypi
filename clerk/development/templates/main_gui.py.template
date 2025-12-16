@@ -6,10 +6,10 @@ from clerk.gui_automation.decorators import gui_automation
 from clerk.gui_automation.ui_state_machine import ScreenPilot, SuccessfulCompletion
 from clerk.utils import logger
 
-from gui.states import *
-from gui.transitions import *
-from gui.rollbacks import *
-from schema import StructuredData  # use `clerk schema fetch` to update the schema
+from src.gui.states import *
+from src.gui.transitions import *
+from src.gui.rollbacks import *
+from src.schema import StructuredData  # use `clerk schema fetch` to update the schema
 
 @clerk_code()
 @gui_automation()
