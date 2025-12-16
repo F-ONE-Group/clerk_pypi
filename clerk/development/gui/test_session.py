@@ -111,7 +111,7 @@ def classify_current_state() -> tuple[bool, str, str]:
         # Always reload states to pick up any changes
         with console.status("[dim]Reloading states...", spinner="dots") as status:
             reload_states()
-            status.update("[green]✓[/green] Reloaded states")
+            status.update("[green]+[/green] Reloaded states")
             time.sleep(0.3)  # Brief pause to show success
 
         states = get_registered_states()
@@ -135,7 +135,7 @@ def classify_current_state() -> tuple[bool, str, str]:
             # Pass output_model=None to get tuple instead of BaseModel
             result: BaseState = VISION_CLIENT.classify_state(possible_states)  # type: ignore[arg-type]
 
-        console.print("[green]✓[/green] Classification complete")
+        console.print("[green]+[/green] Classification complete")
         return True, result.id, result.description
     except Exception:
         return False, "", f"Classification failed: {traceback.format_exc()}"
@@ -218,7 +218,7 @@ def start_interactive_session(payload: ClerkCodePayload):
 
     # The gui_automation decorator establishes the connection before this function runs
     # By the time we get here, connection is already established
-    console.print("[green]✓[/green] WebSocket connection established")
+    console.print("[green]+[/green] WebSocket connection established")
     console.print()
 
     # Mark session as active
@@ -266,10 +266,10 @@ def start_interactive_session(payload: ClerkCodePayload):
             # Show completion message
             if success:
                 console.print(
-                    f"[green]✓[/green] Action completed ({execution_time:.3f}s)"
+                    f"[green]+[/green] Action completed ({execution_time:.3f}s)"
                 )
             else:
-                console.print(f"[red]✗[/red] Action failed ({execution_time:.3f}s)")
+                console.print(f"[red]x[/red] Action failed ({execution_time:.3f}s)")
 
             # Update history
             ACTION_HISTORY[-1]["success"] = success

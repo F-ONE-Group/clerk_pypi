@@ -318,7 +318,7 @@ def main_with_args(project_id: str, project_root: Path | None = None):
         ):
             variables = fetch_schema(project_id)
 
-        console.print(f"[green]✓[/green] Found {len(variables)} variables")
+        console.print(f"[green]+[/green] Found {len(variables)} variables")
 
         # Always save to schema.py in project root
         if project_root is None:
@@ -329,11 +329,11 @@ def main_with_args(project_id: str, project_root: Path | None = None):
             generate_models_from_schema(variables, output_file)
 
         console.print(
-            f"[green]✓[/green] Schema generated and written to: {output_file}"
+            f"[green]+[/green] Schema generated and written to: {output_file}"
         )
     except ApplicationException as e:
-        console.print(f"[red]✗ Error: {e.message}[/red]")
+        console.print(f"[red]x Error: {e.message}[/red]")
         raise
     except Exception as e:
-        console.print(f"[red]✗ Unexpected error: {str(e)}[/red]")
+        console.print(f"[red]x Unexpected error: {str(e)}[/red]")
         raise

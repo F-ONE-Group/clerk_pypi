@@ -41,11 +41,6 @@ def main():
         "init", help="Initialize a new Clerk custom code project"
     )
     init_parser.add_argument(
-        "--gui-automation",
-        action="store_true",
-        help="Include GUI automation functionality",
-    )
-    init_parser.add_argument(
         "--target-dir",
         type=str,
         default=None,
@@ -75,7 +70,7 @@ def main():
     if args.command == "init":
         from clerk.development.init_project import main_with_args
 
-        main_with_args(gui_automation=args.gui_automation, target_dir=args.target_dir)
+        main_with_args(gui_automation=None, target_dir=args.target_dir)
 
     elif args.command == "gui-test":
         from clerk.development.gui.test_session import main as gui_main
