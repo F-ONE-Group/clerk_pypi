@@ -8,13 +8,13 @@ from schema import StructuredData
 def main(payload: ClerkCodePayload):
     """Main program"""
 
-    process_variables = StructuredData.model_validate(payload.structured_data)
-    logger.info("Action main started")
+    data = StructuredData.model_validate(payload.structured_data)
+    logger.info("Custom code started")
     
     # TODO: Implement your custom code logic here
     
-    logger.info("Action main terminated")
-    payload.structured_data = process_variables.model_dump()
+    logger.info("Custom code completed")
+    payload.structured_data = data.model_dump()
     return payload
 
 

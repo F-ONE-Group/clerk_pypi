@@ -9,15 +9,15 @@ from clerk.utils import logger
 from gui.states import *
 from gui.transitions import *
 from gui.rollbacks import *
-from schema import StructuredData
+from schema import StructuredData  # use `clerk schema fetch` to update the schema
 
 @clerk_code()
 @gui_automation()
 def main(payload: ClerkCodePayload):
     """Main program"""
 
-    process_variables = StructuredData.model_validate(payload.structured_data)
-    logger.info("Action main started")    
+    data = StructuredData.model_validate(payload.structured_data)
+    logger.info("Custom code started")    
 
     def goal_function(current_state: str, process_variables: StructuredData) -> None:
         """
@@ -43,8 +43,8 @@ def main(payload: ClerkCodePayload):
     )
         
 
-    logger.info("Action main terminated")
-    payload.structured_data = process_variables.model_dump()
+    logger.info("Custom code completed")
+    payload.structured_data = data.model_dump()  # Return variables to Clerk
     return payload
 
 
