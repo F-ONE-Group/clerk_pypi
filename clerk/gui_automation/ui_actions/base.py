@@ -11,7 +11,23 @@ from ..action_model.model import (
 import os
 
 ModalityType = Union[Literal["icon"], Literal["text"]]
-TARGET_IMAGES_PATH = os.path.join(os.getcwd(), "targets")
+
+
+def _find_child_dir(dir_name: str, root_dir: str) -> str:
+    """
+    Recursively search for a directory starting from current working directory.
+    Returns the first match found, or falls back to cwd/dir_name if none found.
+    """
+    # Walk through the directory tree starting from cwd
+    for root, dirs, _ in os.walk(root_dir):
+        if dir_name in dirs:
+            return os.path.join(root, dir_name)
+
+    # Fallback to default path if no targets directory found
+    return os.path.join(root_dir, dir_name)
+
+
+TARGET_IMAGES_PATH = _find_child_dir("targets", root_dir=os.getcwd())
 
 
 def to_full_img_path(img: Union[str, ImageB64]) -> str:
