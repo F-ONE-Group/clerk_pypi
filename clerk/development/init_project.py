@@ -127,6 +127,24 @@ def create_main_py(target_dir: Path, with_gui: bool = False) -> None:
     console.print(f"[green]+[/green] Created {main_path}")
 
 
+def create_init_py(target_dir: Path) -> None:
+    """Create __init__.py in the target directory if it doesn't exist.
+
+    Args:
+        target_dir: Target directory where __init__.py should be created
+    """
+    init_path = target_dir / "__init__.py"
+
+    if init_path.exists():
+        console.print(f"[yellow]![/yellow]  {init_path} already exists, skipping...")
+        return
+
+    with open(init_path, "w", encoding="utf-8") as f:
+        f.write("# Init file for the package\n")
+
+    console.print(f"[green]+[/green] Created {init_path}")
+
+
 def create_gui_structure(target_dir: Path) -> None:
     """Create GUI automation folder structure with template files.
     
@@ -190,7 +208,7 @@ def init_project(
         "This will set up your Clerk custom code project.",
         style="blue"
     ))
-    
+
     # Prompt for GUI automation if not specified
     if with_gui is None:
         console.print()
@@ -198,17 +216,17 @@ def init_project(
             "[cyan]Enable GUI automation functionality?[/cyan]",
             default=False
         )
-    
+
     gui_status = "ENABLED" if with_gui else "DISABLED"
     console.print(f"\n[dim]GUI Automation: {gui_status}[/dim]")
-    
+
     # Create .env file and get environment variables
     env_vars = create_env_file(gui_automation=with_gui)
-    
+
     if not env_vars:
         console.print("\n[red]✗ Failed to configure environment[/red]")
         sys.exit(1)
-    
+
     # Update os.environ with the new values for fetch_schema to use
     for key, value in env_vars.items():
         os.environ[key] = value
@@ -220,14 +238,17 @@ def init_project(
     # Create main.py
     create_main_py(target_dir, with_gui=with_gui)
 
-    # Create GUI structure if requested
+    # Create __init__.py
+    create_init_py(target_dir)
+
+    # Create GUI automation structure if requested
     if with_gui:
         create_gui_structure(target_dir)
 
     console.print("\n[bold]" + "=" * 60 + "[/bold]")
     console.print("[bold cyan]Fetching Schema from Clerk[/bold cyan]")
     console.print("[bold]" + "=" * 60 + "[/bold]")
-    
+
     # Fetch schema automatically
     try:
         from clerk.development.schema.fetch_schema import main_with_args as fetch_schema_main
@@ -244,25 +265,24 @@ def init_project(
     console.print("\n[bold]" + "=" * 60 + "[/bold]")
     console.print("[bold green]Setup Completed Successfully![/bold green]")
     console.print("[bold]" + "=" * 60 + "[/bold]")
-    
+
     success_items = [
         "Environment configured (.env created)",
         "Schema fetched from Clerk",
     ]
-    
+
     if with_gui:
         success_items.insert(0, "GUI automation structure created")
         success_items.insert(1, "main.py configured with ScreenPilot")
     else:
         success_items.insert(0, "Basic main.py created")
-    
+
     for item in success_items:
         console.print(f"[green]✓[/green] {item}")
-    
+
     console.print("\n[cyan]Next steps:[/cyan]")
-    console.print("   1. Review your configuration in .env")
-    console.print("   2. Check the generated schema.py file")
-    console.print("   3. Start developing your custom code in src/main.py")
+    console.print("   1. Start developing your custom code in src/main.py")
+    console.print("   2. When ready, check README.md for deployment guidance.")
     console.print("[bold]" + "=" * 60 + "[/bold]")
 
 

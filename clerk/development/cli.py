@@ -47,15 +47,29 @@ def main():
         help="Target directory for the project (default: ./src)",
     )
 
-    # GUI test session subcommand
+    # GUI command group
     gui_parser = subparsers.add_parser(
-        "gui-test",
+        "gui",
+        help="GUI automation commands"
+    )
+    gui_subparsers = gui_parser.add_subparsers(dest="gui_command", help="GUI subcommands")
+    
+    # GUI connect subcommand
+    gui_connect_parser = gui_subparsers.add_parser(
+        "connect",
         help="Start interactive GUI automation test session"
     )
 
-    # Fetch schema subcommand
+    # Schema command group
     schema_parser = subparsers.add_parser(
-        "fetch-schema",
+        "schema",
+        help="Schema management commands"
+    )
+    schema_subparsers = schema_parser.add_subparsers(dest="schema_command", help="Schema subcommands")
+    
+    # Schema fetch subcommand
+    schema_fetch_parser = schema_subparsers.add_parser(
+        "fetch",
         help="Fetch and generate Pydantic models from project schema"
     )
 
@@ -72,17 +86,27 @@ def main():
 
         main_with_args(gui_automation=None, target_dir=args.target_dir)
 
-    elif args.command == "gui-test":
-        from clerk.development.gui.test_session import main as gui_main
-        gui_main()
-
-    elif args.command == "fetch-schema":
-        from clerk.development.schema.fetch_schema import main_with_args
-        project_id = os.getenv("PROJECT_ID")
-        if not project_id:
-            print("Error: PROJECT_ID environment variable not set.")
+    elif args.command == "gui":
+        if not hasattr(args, 'gui_command') or not args.gui_command:
+            gui_parser.print_help()
             sys.exit(1)
-        main_with_args(project_id, project_root)
+        
+        if args.gui_command == "connect":
+            from clerk.development.gui.test_session import main as gui_main
+            gui_main()
+
+    elif args.command == "schema":
+        if not hasattr(args, 'schema_command') or not args.schema_command:
+            schema_parser.print_help()
+            sys.exit(1)
+        
+        if args.schema_command == "fetch":
+            from clerk.development.schema.fetch_schema import main_with_args
+            project_id = os.getenv("PROJECT_ID")
+            if not project_id:
+                print("Error: PROJECT_ID environment variable not set.")
+                sys.exit(1)
+            main_with_args(project_id, project_root)
 
 
 if __name__ == "__main__":
