@@ -53,11 +53,30 @@ def main():
         help="GUI automation commands"
     )
     gui_subparsers = gui_parser.add_subparsers(dest="gui_command", help="GUI subcommands")
-    
+
     # GUI connect subcommand
     gui_connect_parser = gui_subparsers.add_parser(
         "connect",
         help="Start interactive GUI automation test session"
+    )
+
+    # GUI graph check subcommand
+    gui_graph_parser = gui_subparsers.add_parser(
+        "graph", help="Graph analysis commands"
+    )
+    gui_graph_subparsers = gui_graph_parser.add_subparsers(
+        dest="graph_command", help="Graph subcommands"
+    )
+
+    gui_graph_check_parser = gui_graph_subparsers.add_parser(
+        "check", help="Check and visualize state machine graph structure"
+    )
+    gui_graph_check_parser.add_argument(
+        "--module-path",
+        type=str,
+        required=False,
+        default=None,
+        help="Path to the Python file containing the state machine (defaults to src/main.py)",
     )
 
     # Schema command group
@@ -66,7 +85,7 @@ def main():
         help="Schema management commands"
     )
     schema_subparsers = schema_parser.add_subparsers(dest="schema_command", help="Schema subcommands")
-    
+
     # Schema fetch subcommand
     schema_fetch_parser = schema_subparsers.add_parser(
         "fetch",
@@ -90,16 +109,27 @@ def main():
         if not hasattr(args, 'gui_command') or not args.gui_command:
             gui_parser.print_help()
             sys.exit(1)
-        
+
         if args.gui_command == "connect":
             from clerk.development.gui.test_session import main as gui_main
             gui_main()
+
+        elif args.gui_command == "graph":
+            if not hasattr(args, "graph_command") or not args.graph_command:
+                print("Error: graph command requires a subcommand")
+                print("Available subcommands: check")
+                sys.exit(1)
+
+            if args.graph_command == "check":
+                from clerk.development.gui.graph_checker import check_graph
+
+                check_graph(args.module_path)
 
     elif args.command == "schema":
         if not hasattr(args, 'schema_command') or not args.schema_command:
             schema_parser.print_help()
             sys.exit(1)
-        
+
         if args.schema_command == "fetch":
             from clerk.development.schema.fetch_schema import main_with_args
             project_id = os.getenv("PROJECT_ID")
