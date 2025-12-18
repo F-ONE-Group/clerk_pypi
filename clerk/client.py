@@ -81,9 +81,9 @@ class ClerkDocument(BaseClerk):
         )
         return Document(**res.data[0])
 
-    def reprocess_document(self, document_id: str) -> Document:
+    def reprocess_document(self, document_id: str, workflow_id: str) -> Document:
         endpoint = f"/document/{document_id}/reprocess"
-        res = self.put_request(endpoint=endpoint)
+        res = self.put_request(endpoint=endpoint, data={"workflow_id": workflow_id})
         return Document(**res.data[0])
 
     def cancel_document_run(self, document_id: str) -> Document:
