@@ -26,6 +26,7 @@ class Document(BaseModel):
 
 class UploadDocumentRequest(BaseModel):
     project_id: str
+    workflow_id: str
     message_subject: Optional[str] = None
     message_content: Optional[str] = None
     files: List[str | ParsedFile] = []
