@@ -25,7 +25,6 @@ class Document(BaseModel):
 
 
 class UploadDocumentRequest(BaseModel):
-    project_id: str
     workflow_id: str
     message_subject: Optional[str] = None
     message_content: Optional[str] = None
@@ -86,7 +85,7 @@ class UploadDocumentRequest(BaseModel):
                 )
 
         return dict(
-            project_id=self.project_id,
+            workflow_id=self.workflow_id,
             message_subject=self.message_subject,
             mesasge_content=self.message_content,
             input_structured_data=serialized_input_structured_data,

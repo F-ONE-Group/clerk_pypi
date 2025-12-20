@@ -40,7 +40,7 @@ def test_upload_document_calls_post(monkeypatch):
         content="ZmFrZQ==",
         mimetype="text/plain",
     )
-    request = UploadDocumentRequest(project_id="proj-1", files=[parsed_file])
+    request = UploadDocumentRequest(workflow_id="proj-1", files=[parsed_file])
 
     captured: Dict[str, Any] = {}
 
@@ -63,7 +63,9 @@ def test_update_document_structured_data(monkeypatch):
 
     def fake_put(self: Clerk, endpoint: str, json: Dict[str, Any]):
         captured.update(endpoint=endpoint, json=json)
-        return StandardResponse(data=[make_document_payload(id="doc-3", structured_data={"a": 1})])
+        return StandardResponse(
+            data=[make_document_payload(id="doc-3", structured_data={"a": 1})]
+        )
 
     monkeypatch.setattr(Clerk, "put_request", fake_put)
 
@@ -102,7 +104,9 @@ def test_get_documents_calls_get(monkeypatch):
 
     def fake_get(self: Clerk, endpoint: str, params: Dict[str, Any]):
         captured.update(endpoint=endpoint, params=params)
-        return StandardResponse(data=[make_document_payload(id="doc-5"), make_document_payload(id="doc-6")])
+        return StandardResponse(
+            data=[make_document_payload(id="doc-5"), make_document_payload(id="doc-6")]
+        )
 
     monkeypatch.setattr(Clerk, "get_request", fake_get)
 

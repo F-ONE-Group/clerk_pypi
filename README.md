@@ -104,7 +104,7 @@ Use `UploadDocumentRequest` to send metadata and file attachments. Files can be 
 from clerk.models.document import UploadDocumentRequest
 
 upload_request = UploadDocumentRequest(
-    project_id="proj_456",
+    workflow_id="proj_456",
     message_subject="Invoice 2024-01",
     files=["/path/to/invoice.pdf"],
     input_structured_data={"customer_id": "cust_789"},
