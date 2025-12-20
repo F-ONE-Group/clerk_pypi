@@ -1,0 +1,32 @@
+"""Test payload for local testing."""
+from datetime import datetime
+from clerk.decorator.models import ClerkCodePayload, Document, File
+from src.schema import *
+
+# Define your test payload here
+# 
+# NOTE: Files can be local! The mock Clerk client will read from local paths.
+# Put your test files in test/payloads/ and reference them like:
+#   File(name="invoice.pdf", url="test/payloads/invoice.pdf")
+# 
+# When your code calls client.get_files_document(), it will return ParsedFile
+# objects with the actual content from these local files.
+
+payload = ClerkCodePayload(
+    document=Document(
+        id="test-doc-123",
+        message_subject="Test Document",
+        message_content="This is a test document for local testing",
+        files=[
+            File(
+                name="example.pdf",
+                url="test/payloads/example.pdf"  # Use local file path
+            )
+        ],
+        upload_date=datetime(2025, 1, 1, 0, 0, 0)
+    ),
+    structured_data=StructuredData(
+{structured_data_fields}
+    ).model_dump(),
+    run_id="test-run-001"
+)

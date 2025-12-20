@@ -92,6 +92,19 @@ def main():
         help="Fetch and generate Pydantic models from project schema"
     )
 
+    # Code command group
+    code_parser = subparsers.add_parser(
+        "code", help="Custom code development and testing commands"
+    )
+    code_subparsers = code_parser.add_subparsers(
+        dest="code_command", help="Code subcommands"
+    )
+
+    # Code run subcommand
+    code_run_parser = code_subparsers.add_parser(
+        "run", help="Run custom code with test payloads"
+    )
+
     args = parser.parse_args()
 
     # Show help if no command specified
@@ -137,6 +150,16 @@ def main():
                 print("Error: PROJECT_ID environment variable not set.")
                 sys.exit(1)
             main_with_args(project_id, project_root)
+
+    elif args.command == "code":
+        if not hasattr(args, "code_command") or not args.code_command:
+            code_parser.print_help()
+            sys.exit(1)
+
+        if args.code_command == "run":
+            from clerk.development.code_runner import main_with_args
+
+            main_with_args(project_root)
 
 
 if __name__ == "__main__":
