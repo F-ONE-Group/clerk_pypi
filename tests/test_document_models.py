@@ -27,7 +27,7 @@ def make_document(**overrides: Dict[str, object]) -> Document:
 def test_upload_document_request_files_handles_paths(tmp_path):
     file_path = tmp_path / "doc.txt"
     file_path.write_text("hello")
-    request = UploadDocumentRequest(project_id="proj-1", files=[str(file_path)])
+    request = UploadDocumentRequest(workflow_id="proj-1", files=[str(file_path)])
 
     files = request.files_
 
@@ -39,7 +39,7 @@ def test_upload_document_request_files_handles_paths(tmp_path):
 def test_upload_document_request_files_handles_parsed_file():
     content = base64.b64encode(b"hello").decode()
     parsed = ParsedFile(name="doc.txt", content=content, mimetype="text/plain")
-    request = UploadDocumentRequest(project_id="proj-1", files=[parsed])
+    request = UploadDocumentRequest(workflow_id="proj-1", files=[parsed])
 
     files = request.files_
 
@@ -48,21 +48,27 @@ def test_upload_document_request_files_handles_parsed_file():
 
 
 def test_upload_document_request_invalid_path_raises(tmp_path):
-    request = UploadDocumentRequest(project_id="proj-1", files=[str(tmp_path / "missing.txt")])
+    request = UploadDocumentRequest(
+        workflow_id="proj-1", files=[str(tmp_path / "missing.txt")]
+    )
 
     with pytest.raises(FileExistsError):
         _ = request.files_
 
 
 def test_upload_document_request_data_serializes_structured_data():
-    request = UploadDocumentRequest(project_id="proj-1", input_structured_data={"a": 1})
+    request = UploadDocumentRequest(
+        workflow_id="proj-1", input_structured_data={"a": 1}
+    )
     payload = request.data
 
     assert json.loads(payload["input_structured_data"]) == {"a": 1}
 
 
 def test_upload_document_request_invalid_structured_data():
-    request = UploadDocumentRequest(project_id="proj-1", input_structured_data={"bad": {1, 2, 3}})
+    request = UploadDocumentRequest(
+        workflow_id="proj-1", input_structured_data={"bad": {1, 2, 3}}
+    )
 
     with pytest.raises(ValueError):
         _ = request.data
