@@ -19,7 +19,7 @@ def main(payload: ClerkCodePayload):
     data = StructuredData.model_validate(payload.structured_data)
     logger.info("Custom code started")    
 
-    def goal_function(current_state: str, process_variables: StructuredData) -> None:
+    def goal_function(current_state: str, data: StructuredData) -> None:
         """
         Goal function for the state machine.
         Args:
@@ -39,7 +39,7 @@ def main(payload: ClerkCodePayload):
 
     ScreenPilot.configure(ai_recovery_instructions=ai_recovery_instructions)
     exit_reason = ScreenPilot.run(
-        goal_function, process_variables=process_variables, doc_id=payload.document.id
+        goal_function, data=data, doc_id=payload.document.id
     )
         
 
