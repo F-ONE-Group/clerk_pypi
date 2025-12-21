@@ -145,6 +145,25 @@ def create_init_py(target_dir: Path) -> None:
     console.print(f"[green]+[/green] Created {init_path}")
 
 
+def create_vscode_launch_config() -> None:
+    """Create .vscode/launch.json for debugging."""
+    vscode_dir = Path(".vscode")
+    vscode_dir.mkdir(exist_ok=True)
+    
+    launch_path = vscode_dir / "launch.json"
+    
+    if launch_path.exists():
+        console.print(f"[yellow]![/yellow]  {launch_path} already exists, skipping...")
+        return
+    
+    content = read_template("launch.json.template")
+    
+    with open(launch_path, "w", encoding='utf-8') as f:
+        f.write(content)
+    
+    console.print(f"[green]+[/green] Created {launch_path}")
+
+
 def create_gui_structure(target_dir: Path) -> None:
     """Create GUI automation folder structure with template files.
     
@@ -240,6 +259,9 @@ def init_project(
 
     # Create __init__.py
     create_init_py(target_dir)
+
+    # Create VS Code launch configuration
+    create_vscode_launch_config()
 
     # Create GUI automation structure if requested
     if with_gui:

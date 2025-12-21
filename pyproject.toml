@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "clerk-sdk"
-version = "0.5.2"
+version = "0.5.3"
 description = "Library for interacting with Clerk"
 readme = "README.md"
 authors = [
@@ -22,6 +22,7 @@ dependencies = [
     "requests>=2.32.3,<3.0.0",
     "python-dotenv>=1.0.0",
     "rich>=14.2.0",
+    "debugpy>=1.8.0,<2.0.0",
 ]
 
 [project.optional-dependencies]

@@ -1,0 +1,25 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Start Clerk Code Run Debug Server",
+            "type": "shell",
+            "command": "clerk",
+            "args": ["code", "run"],
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^$",
+                    "file": 1,
+                    "location": 2,
+                    "message": 3
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "Starting debug server",
+                    "endsPattern": "Waiting for debugger to attach"
+                }
+            }
+        }
+    ]
+}

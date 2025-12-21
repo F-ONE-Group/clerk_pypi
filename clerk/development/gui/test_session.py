@@ -318,9 +318,9 @@ def main():
         run_id="test-session-run",
     )
 
-    # Show spinner while the decorator establishes WebSocket connection
-    with console.status("[dim]Waiting for tool to connect...", spinner="dots"):
-        start_interactive_session(payload)
+    # The @gui_automation decorator will establish the connection
+    # and the function itself will print the connection status
+    start_interactive_session(payload)
 
 
 if __name__ == "__main__":
