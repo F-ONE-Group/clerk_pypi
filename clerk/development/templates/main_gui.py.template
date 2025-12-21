@@ -31,7 +31,7 @@ def main(payload: ClerkCodePayload):
         if True:  # Use an actual condition based on state and/or process variables to complete the automation
             raise SuccessfulCompletion()
 
-    ai_recovery_instructions = "\\n - ".join(
+    ai_recovery_instructions = "\n - ".join(
         [
             "Instructions on how to deal with possible issues using Clerk UI Actions.",            
         ]
