@@ -20,3 +20,19 @@ class WebSocketConnectionFailed(Exception):
     """
 
     pass
+
+
+class AckTimeoutError(Exception):
+    """
+    Timeout waiting for ACK message from WebSocket.
+    """
+
+    pass
+
+
+class ActionTimeoutError(Exception):
+    """
+    Timeout waiting for action response from WebSocket.
+    """
+
+    pass

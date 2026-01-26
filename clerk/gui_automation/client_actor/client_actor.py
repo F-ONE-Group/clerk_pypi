@@ -19,7 +19,12 @@ from .model import (
 )
 
 from .model import PerformActionResponse, ActionStates
-from .exception import PerformActionException, GetScreenError
+from .exception import (
+    PerformActionException,
+    GetScreenError,
+    AckTimeoutError,
+    ActionTimeoutError,
+)
 
 
 async def before_retry(details: Any):
@@ -33,6 +38,13 @@ async def before_retry(details: Any):
     WebSocketException,
     interval=1,
     max_tries=5,
+    on_backoff=before_retry,
+)
+@backoff.on_exception(
+    backoff.constant,
+    (ActionTimeoutError, AckTimeoutError),
+    interval=10,
+    max_tries=2,
     on_backoff=before_retry,
 )
 async def _perform_action_ws(payload: Dict[str, Any]) -> PerformActionResponse:
@@ -57,15 +69,21 @@ async def _perform_action_ws(payload: Dict[str, Any]) -> PerformActionResponse:
         # 2. wait for ack message
         try:
             ack = await asyncio.wait_for(global_ws.recv(), 10)
-            if ack == "OK":
-                action_info = await asyncio.wait_for(global_ws.recv(), 60)
-                return PerformActionResponse(**json.loads(action_info))
-            else:
-                raise RuntimeError("Received ACK != OK")
+        except asyncio.TimeoutError:
+            raise AckTimeoutError("Timeout waiting for ACK message")
         except WebSocketException as e:
             raise e
-        except asyncio.TimeoutError:
-            raise RuntimeError("The ack message did not arrive.")
+
+        if ack == "OK":
+            try:
+                action_info = await asyncio.wait_for(global_ws.recv(), 60)
+            except asyncio.TimeoutError:
+                raise ActionTimeoutError("Timeout waiting for action response")
+            except WebSocketException as e:
+                raise e
+            return PerformActionResponse(**json.loads(action_info))
+        else:
+            raise RuntimeError("Received ACK != OK")
     else:
         raise RuntimeError("The Websocket has not been initiated.")
 
