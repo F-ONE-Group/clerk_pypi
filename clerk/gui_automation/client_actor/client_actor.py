@@ -68,7 +68,7 @@ async def _perform_action_ws(payload: Dict[str, Any]) -> PerformActionResponse:
 
         # 2. wait for ack message
         try:
-            ack = await asyncio.wait_for(global_ws.recv(), 10)
+            ack = await asyncio.wait_for(global_ws.recv(), 120)
         except asyncio.TimeoutError:
             raise AckTimeoutError("Timeout waiting for ACK message")
         except WebSocketException as e:
@@ -76,7 +76,7 @@ async def _perform_action_ws(payload: Dict[str, Any]) -> PerformActionResponse:
 
         if ack == "OK":
             try:
-                action_info = await asyncio.wait_for(global_ws.recv(), 60)
+                action_info = await asyncio.wait_for(global_ws.recv(), 120)
             except asyncio.TimeoutError:
                 raise ActionTimeoutError("Timeout waiting for action response")
             except WebSocketException as e:
