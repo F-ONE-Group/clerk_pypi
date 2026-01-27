@@ -22,7 +22,7 @@ wss_uri = "wss://agent-manager.f-one.group/action"
 
 async def connect_to_ws(uri: str) -> ClientConnection:
     # Same knobs as before, just via the new connect()
-    return await connect(uri, max_size=2**23, ping_timeout=3600)
+    return await connect(uri, max_size=2**26, ping_timeout=3600)
 
 
 async def close_ws_connection(ws_conn: ClientConnection):
