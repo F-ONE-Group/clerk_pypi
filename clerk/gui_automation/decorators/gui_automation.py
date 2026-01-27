@@ -1,18 +1,13 @@
 import asyncio
 import functools
 import os
-import time
 from typing import Any, Callable, Dict, Sequence, Union
 
 from websockets.asyncio.client import connect, ClientConnection
 from websockets.protocol import State
 
 from clerk.gui_automation.client import RPAClerk
-from clerk.gui_automation.exceptions.agent_manager import (
-    ClientAvailabilityTimeout,
-    NoClientsAvailable,
-)
-from clerk.models.remote_device import RemoteDevice
+
 from clerk.decorator.models import ClerkCodePayload
 from clerk.utils import logger
 from ..exceptions.websocket import WebSocketConnectionFailed

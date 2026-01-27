@@ -45,7 +45,6 @@ async def before_retry(details: Any):
     (ActionTimeoutError, AckTimeoutError),
     interval=10,
     max_tries=2,
-    on_backoff=before_retry,
 )
 async def _perform_action_ws(payload: Dict[str, Any]) -> PerformActionResponse:
     """Perform an action over a WebSocket connection.
