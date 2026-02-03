@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Literal
+from typing import Any, Dict, List, Literal, cast
 
 from clerk.base import BaseClerk
 from clerk.models.document import Document, GetDocumentsRequest, UploadDocumentRequest
@@ -73,21 +73,23 @@ class Clerk(BaseClerk):
 
     def prevalidate_file(
         self, project_id: str, workflow_id: str, file: UploadFile
-    ) -> Dict[str, Any]:
+    ) -> str:
         """Submit a prevalidation for a specific file. Returns the id for fetching the results later."""
         endpoint = f"/prevalidation/file"
-        files_data = [file.to_multipart_format()]
+        files_data = [file.to_multipart_format(key="file")]
         res = self.post_request(
             endpoint,
             files=files_data,
             data={"project_id": project_id, "workflow_id": workflow_id},
         )
-        return res.data[0]
+        return cast(str, res.data[0])
 
     def get_prevalidation_results(
         self, workflow_run_id: str
-    ) -> FileClassificationResponse:
+    ) -> FileClassificationResponse | None:
         """Fetch the results of a previously submitted prevalidation."""
         endpoint = f"/prevalidation/file"
         res = self.get_request(endpoint, params={"workflow_run_id": workflow_run_id})
+        if not res.data:
+            return None
         return FileClassificationResponse(**res.data[0])
