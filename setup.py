@@ -13,7 +13,7 @@ gui_requirements = get_requirements("./clerk/gui_automation")
 
 setup(
     name="clerk-sdk",
-    version="0.5.11",
+    version="0.5.12",
     description="Library for interacting with Clerk",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
