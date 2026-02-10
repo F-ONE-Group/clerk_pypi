@@ -1,4 +1,5 @@
 """Clerk CLI - Unified command-line interface for Clerk development tools"""
+
 import os
 import sys
 import argparse
@@ -31,7 +32,7 @@ def main():
     parser = argparse.ArgumentParser(
         prog="clerk",
         description="Clerk development tools",
-        epilog="Run 'clerk <command> --help' for more information on a command."
+        epilog="Run 'clerk <command> --help' for more information on a command.",
     )
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
@@ -48,16 +49,14 @@ def main():
     )
 
     # GUI command group
-    gui_parser = subparsers.add_parser(
-        "gui",
-        help="GUI automation commands"
+    gui_parser = subparsers.add_parser("gui", help="GUI automation commands")
+    gui_subparsers = gui_parser.add_subparsers(
+        dest="gui_command", help="GUI subcommands"
     )
-    gui_subparsers = gui_parser.add_subparsers(dest="gui_command", help="GUI subcommands")
 
     # GUI connect subcommand
     gui_connect_parser = gui_subparsers.add_parser(
-        "connect",
-        help="Start interactive GUI automation test session"
+        "connect", help="Start interactive GUI automation test session"
     )
 
     # GUI graph check subcommand
@@ -80,16 +79,14 @@ def main():
     )
 
     # Schema command group
-    schema_parser = subparsers.add_parser(
-        "schema",
-        help="Schema management commands"
+    schema_parser = subparsers.add_parser("schema", help="Schema management commands")
+    schema_subparsers = schema_parser.add_subparsers(
+        dest="schema_command", help="Schema subcommands"
     )
-    schema_subparsers = schema_parser.add_subparsers(dest="schema_command", help="Schema subcommands")
 
     # Schema fetch subcommand
     schema_fetch_parser = schema_subparsers.add_parser(
-        "fetch",
-        help="Fetch and generate Pydantic models from project schema"
+        "fetch", help="Fetch and generate Pydantic models from project schema"
     )
 
     # Code command group
@@ -98,6 +95,30 @@ def main():
     )
     code_subparsers = code_parser.add_subparsers(
         dest="code_command", help="Code subcommands"
+    )
+
+    # Context-agent command
+    context_parser = subparsers.add_parser(
+        "context-agent",
+        help="Fetch and save project schema with document structured data",
+    )
+    context_parser.add_argument(
+        "--project-id",
+        type=str,
+        required=True,
+        help="The project ID to fetch schema for",
+    )
+    context_parser.add_argument(
+        "--document-id",
+        type=str,
+        required=True,
+        help="The document ID to fetch structured data for",
+    )
+    context_parser.add_argument(
+        "--target-dir",
+        type=str,
+        default=None,
+        help="Target directory for output files (default: current working directory)",
     )
 
     # Code run subcommand
@@ -119,12 +140,13 @@ def main():
         main_with_args(gui_automation=None, target_dir=args.target_dir)
 
     elif args.command == "gui":
-        if not hasattr(args, 'gui_command') or not args.gui_command:
+        if not hasattr(args, "gui_command") or not args.gui_command:
             gui_parser.print_help()
             sys.exit(1)
 
         if args.gui_command == "connect":
             from clerk.development.gui.test_session import main as gui_main
+
             gui_main()
 
         elif args.gui_command == "graph":
@@ -139,12 +161,13 @@ def main():
                 check_graph(args.module_path)
 
     elif args.command == "schema":
-        if not hasattr(args, 'schema_command') or not args.schema_command:
+        if not hasattr(args, "schema_command") or not args.schema_command:
             schema_parser.print_help()
             sys.exit(1)
 
         if args.schema_command == "fetch":
             from clerk.development.schema.fetch_schema import main_with_args
+
             project_id = os.getenv("PROJECT_ID")
             if not project_id:
                 print("Error: PROJECT_ID environment variable not set.")
@@ -160,6 +183,15 @@ def main():
             from clerk.development.code_runner import main_with_args
 
             main_with_args(project_root)
+
+    elif args.command == "context-agent":
+        from clerk.development.context_agent import main_with_args
+
+        main_with_args(
+            project_id=args.project_id,
+            document_id=args.document_id,
+            target_dir=args.target_dir,
+        )
 
 
 if __name__ == "__main__":
