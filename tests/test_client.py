@@ -89,6 +89,31 @@ def test_get_document(monkeypatch):
     assert document.id == "doc-4"
 
 
+def test_get_document_internal_returns_raw_payload(monkeypatch):
+    clerk = Clerk(api_key="token")
+    raw_payload = make_document_payload(
+        id="doc-internal",
+        processorRuns=[
+            {
+                "id": "run-1",
+                "inputStructuredData": {"var-1": {"id": "leaf-1", "value": "x"}},
+            }
+        ],
+        files=[{"name": "invoice.pdf", "url": "https://example.com/invoice.pdf"}],
+    )
+
+    def fake_get(self: Clerk, endpoint: str):
+        return StandardResponse(data=[raw_payload])
+
+    monkeypatch.setattr(Clerk, "get_request", fake_get)
+
+    payload = clerk._get_document_internal("doc-internal")
+
+    assert payload["id"] == "doc-internal"
+    assert payload["processorRuns"][0]["id"] == "run-1"
+    assert payload["files"][0]["name"] == "invoice.pdf"
+
+
 def test_get_documents_requires_filters():
     clerk = Clerk(api_key="token")
     request = GetDocumentsRequest()

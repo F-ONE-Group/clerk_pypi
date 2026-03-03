@@ -11,6 +11,10 @@ from rich.panel import Panel
 from rich.prompt import Confirm, Prompt
 from rich import print as rprint
 
+from clerk.client import Clerk
+from clerk.decorator.models import ClerkCodePayload, Document, File
+from clerk.development.schema import deserialize_clerk_data
+
 console = Console()
 
 
@@ -226,20 +230,149 @@ def load_payload(payload_path: Path, project_root: Path):
     return payload_module.payload
 
 
+def _load_structured_data_class(project_root: Path):
+    """Load StructuredData model from src/schema.py."""
+    schema_path = project_root / "src" / "schema.py"
+    if not schema_path.exists():
+        raise FileNotFoundError("No schema found. Run 'clerk schema fetch' first.")
+
+    src_path = str(project_root / "src")
+    if src_path not in sys.path:
+        sys.path.insert(0, src_path)
+
+    spec = importlib.util.spec_from_file_location("schema", schema_path)
+    if not spec or not spec.loader:
+        raise ImportError(f"Could not load schema module from {schema_path}")
+
+    schema_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(schema_module)
+
+    if not hasattr(schema_module, "StructuredData"):
+        raise AttributeError("src/schema.py must define a StructuredData model")
+
+    return getattr(schema_module, "StructuredData")
+
+
+def _normalize_input_structured_data(input_structured_data: Any) -> Dict[str, Any]:
+    """Normalize input structured data to a dictionary."""
+    if input_structured_data is None:
+        return {}
+
+    if isinstance(input_structured_data, dict):
+        return input_structured_data
+
+    if isinstance(input_structured_data, str):
+        try:
+            parsed = json.loads(input_structured_data)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"input_structured_data is not valid JSON: {e}") from e
+        if isinstance(parsed, dict):
+            return parsed
+        raise ValueError("input_structured_data JSON must decode to an object")
+
+    raise TypeError("input_structured_data must be a dict, JSON string, or None")
+
+
+def build_payload_from_clerk_data(
+    project_root: Path, document_id: str, processor_run_id: str
+) -> ClerkCodePayload:
+    """Build ClerkCodePayload from Clerk document and processor run input data."""
+    client = Clerk()
+    raw_document = client._get_document_internal(document_id)
+
+    processor_runs = raw_document.get("processor_runs", [])
+    selected_run = next(
+        (
+            run
+            for run in processor_runs
+            if isinstance(run, dict) and str(run.get("id", "")) == processor_run_id
+        ),
+        None,
+    )
+    if selected_run is None:
+        available_run_ids = ", ".join(
+            str(run.get("id"))
+            for run in processor_runs
+            if isinstance(run, dict) and run.get("id") is not None
+        ) or "none"
+        raise ValueError(
+            f"Processor run '{processor_run_id}' not found on document '{document_id}'. "
+            f"Available run IDs: {available_run_ids}"
+        )
+
+    structured_data_class = _load_structured_data_class(project_root)
+    raw_input_structured_data = _normalize_input_structured_data(
+        selected_run.get("inputStructuredData", selected_run.get("input_structured_data"))
+    )
+    structured_data_model = deserialize_clerk_data(
+        raw_input_structured_data, structured_data_class
+    )
+
+    raw_document_id = raw_document.get("id")
+    if not raw_document_id:
+        raise ValueError("Document payload is missing required 'id'")
+
+    raw_files = raw_document.get("files") or []
+    payload_files = [
+        File(name=str(file.get("name")), url=str(file.get("url")))
+        for file in raw_files
+        if isinstance(file, dict) and file.get("name") and file.get("url")
+    ]
+    payload_document = Document(
+        id=str(raw_document_id),
+        message_subject=raw_document.get("message_subject") or raw_document.get("messageSubject"),
+        message_content=raw_document.get("message_content") or raw_document.get("messageContent"),
+        files=payload_files,
+        upload_date=raw_document.get("upload_date") or raw_document.get("uploadDate"),
+    )
+
+    return ClerkCodePayload(
+        document=payload_document,
+        structured_data=structured_data_model.model_dump(),
+        run_id=str(selected_run.get("id")),
+    )
+
+
+def select_payload_source() -> str:
+    """Select payload source: local payload file or Clerk run data."""
+    console.print("\n[bold]Payload sources:[/bold]")
+    console.print("  [cyan]1[/cyan]. Local test payload")
+    console.print("  [cyan]2[/cyan]. Clerk data (document + processor run)")
+
+    while True:
+        choice = Prompt.ask("\nSelect payload source", default="1")
+        normalized = choice.strip().lower()
+        if normalized in {"1", "local", "payload", "test"}:
+            return "local"
+        if normalized in {"2", "clerk", "clerk data"}:
+            return "clerk"
+        console.print("[red]Please choose 1 (local) or 2 (Clerk data).[/red]")
+
+
+def prompt_clerk_identifiers() -> tuple[str, str]:
+    """Prompt user for Clerk document and processor run IDs."""
+    while True:
+        document_id = Prompt.ask("Enter Clerk document ID").strip()
+        if document_id:
+            break
+        console.print("[red]Document ID is required.[/red]")
+
+    while True:
+        processor_run_id = Prompt.ask("Enter Clerk processor run ID").strip()
+        if processor_run_id:
+            break
+        console.print("[red]Processor run ID is required.[/red]")
+
+    return document_id, processor_run_id
+
+
 def run_main_with_payload(project_root: Path, payload_path: Path):
-    """Run main() from src/main.py with the selected payload.
+    """Run main() from src/main.py with payload loaded from local file.
 
     Args:
         project_root: Project root directory
         payload_path: Path to the payload Python file
     """
-    console.print()
-    console.print(Panel(
-        f"[bold]Running main() with payload: {payload_path.name}[/bold]",
-        style="cyan"
-    ))
-
-    # Load payload
     try:
         payload_obj = load_payload(payload_path, project_root)
         console.print("[green]✓[/green] Loaded payload")
@@ -248,6 +381,23 @@ def run_main_with_payload(project_root: Path, payload_path: Path):
         import traceback
         console.print("[dim]" + traceback.format_exc() + "[/dim]")
         sys.exit(1)
+
+    run_main_with_payload_object(project_root, payload_obj, payload_path.name)
+
+
+def run_main_with_payload_object(project_root: Path, payload_obj: ClerkCodePayload, payload_label: str):
+    """Run main() from src/main.py with a prepared payload object.
+
+    Args:
+        project_root: Project root directory
+        payload_obj: Prepared ClerkCodePayload object
+        payload_label: Label shown in CLI output
+    """
+    console.print()
+    console.print(Panel(
+        f"[bold]Running main() with payload: {payload_label}[/bold]",
+        style="cyan"
+    ))
 
     # Find main.py
     main_path = project_root / "src" / "main.py"
@@ -352,9 +502,33 @@ def main_with_args(project_root: Path):
     console.print()
     console.print(Panel(
         "[bold]Clerk Code Runner[/bold]\n"
-        "Run your custom code with test payloads",
+        "Run your custom code with local payloads or Clerk data",
         style="cyan"
     ))
+
+    payload_source = select_payload_source()
+
+    if payload_source == "clerk":
+        document_id, processor_run_id = prompt_clerk_identifiers()
+        try:
+            payload_obj = build_payload_from_clerk_data(
+                project_root=project_root,
+                document_id=document_id,
+                processor_run_id=processor_run_id,
+            )
+            console.print("[green]✓[/green] Loaded payload from Clerk data")
+        except Exception as e:
+            console.print(f"[red]x[/red] Failed to build payload from Clerk data: {str(e)}")
+            import traceback
+            console.print("[dim]" + traceback.format_exc() + "[/dim]")
+            sys.exit(1)
+
+        run_main_with_payload_object(
+            project_root,
+            payload_obj,
+            f"Clerk run {processor_run_id} (document {document_id})",
+        )
+        return
     
     # Find payloads
     payloads = find_test_payloads(project_root)

@@ -34,6 +34,17 @@ class Clerk(BaseClerk):
         res = self.get_request(endpoint=endpoint)
         return Document(**res.data[0])
 
+    def _get_document_internal(self, document_id: str) -> Dict[str, Any]:
+        """Fetch raw document payload for internal SDK features.
+
+        This method intentionally returns the untyped response object so
+        internal tooling can access fields that are not part of the public
+        Document model contract.
+        """
+        endpoint = f"/document/{document_id}"
+        res = self.get_request(endpoint=endpoint)
+        return cast(Dict[str, Any], res.data[0])
+
     def get_documents(self, request: GetDocumentsRequest) -> List[Document]:
         if not any(
             [

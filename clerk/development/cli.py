@@ -123,7 +123,7 @@ def main():
 
     # Code run subcommand
     code_run_parser = code_subparsers.add_parser(
-        "run", help="Run custom code with test payloads"
+        "run", help="Run custom code with local test payloads or Clerk data"
     )
 
     args = parser.parse_args()
@@ -145,7 +145,7 @@ def main():
             sys.exit(1)
 
         if args.gui_command == "connect":
-            from clerk.development.gui.test_session import main as gui_main
+            from clerk.development.gui.gui_test_session import main as gui_main
 
             gui_main()
 
