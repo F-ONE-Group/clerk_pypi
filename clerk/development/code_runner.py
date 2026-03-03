@@ -280,7 +280,7 @@ def build_payload_from_clerk_data(
     client = Clerk()
     raw_document = client._get_document_internal(document_id)
 
-    processor_runs = raw_document.get("processor_runs", [])
+    processor_runs = raw_document.get("processor_run_instances", [])
     selected_run = next(
         (
             run
