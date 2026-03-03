@@ -123,7 +123,7 @@ def main():
 
     # Code run subcommand
     code_run_parser = code_subparsers.add_parser(
-        "run", help="Run custom code with test payloads"
+        "run", help="Run custom code with local test payloads or Clerk data"
     )
 
     args = parser.parse_args()
