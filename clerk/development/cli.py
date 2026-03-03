@@ -145,7 +145,7 @@ def main():
             sys.exit(1)
 
         if args.gui_command == "connect":
-            from clerk.development.gui.test_session import main as gui_main
+            from clerk.development.gui.gui_test_session import main as gui_main
 
             gui_main()
 
