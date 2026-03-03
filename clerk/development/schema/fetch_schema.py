@@ -187,9 +187,9 @@ def generate_models_from_schema(
 
     # Generate imports
     imports = [
-        "from typing import Any, List, Optional, Dict",
-        "from datetime import date, datetime, time",
-        "from pydantic import BaseModel, Field",
+        "from typing import List, Optional",
+        "from pydantic import BaseModel",
+        "from clerk.development.schema import ClerkVariable"
     ]
 
     # Check if we need Literal
@@ -215,6 +215,8 @@ def generate_models_from_schema(
 
         # Generate this class
         code_lines.append(f"class {class_name}(BaseModel):")
+        code_lines.append('    model_config = {"coerce_numbers_to_str": True}')
+        code_lines.append("")
 
         if not vars_list:
             code_lines.append("    pass")
@@ -244,14 +246,14 @@ def generate_models_from_schema(
                         field_parts.append(f"default={repr(var.default)}")
                     else:
                         field_parts.append("default=None")
+                elif var.is_array and var.default is None:
+                    field_parts.append("default_factory=list")
                 elif var.default is not None:
                     field_parts.append(f"default={repr(var.default)}")
 
-                if field_parts:
-                    field_def = f"Field({', '.join(field_parts)})"
-                    code_lines.append(f"    {field_name}: {python_type} = {field_def}")
-                else:
-                    code_lines.append(f"    {field_name}: {python_type}")
+                clerk_args = [f'id="{var.id}"'] + field_parts
+                field_def = f"ClerkVariable({', '.join(clerk_args)})"
+                code_lines.append(f"    {field_name}: {python_type} = {field_def}")
 
         code_lines.append("")
         generated_classes.add(class_name)
@@ -291,14 +293,14 @@ def generate_models_from_schema(
                     field_parts.append(f"default={repr(var.default)}")
                 else:
                     field_parts.append("default=None")
+            elif var.is_array and var.default is None:
+                field_parts.append("default_factory=list")
             elif var.default is not None:
                 field_parts.append(f"default={repr(var.default)}")
 
-            if field_parts:
-                field_def = f"Field({', '.join(field_parts)})"
-                code_lines.append(f"    {field_name}: {python_type} = {field_def}")
-            else:
-                code_lines.append(f"    {field_name}: {python_type}")
+            clerk_args = [f'id="{var.id}"'] + field_parts
+            field_def = f"ClerkVariable({', '.join(clerk_args)})"
+            code_lines.append(f"    {field_name}: {python_type} = {field_def}")
 
     generated_code = "\n".join(code_lines)
 
