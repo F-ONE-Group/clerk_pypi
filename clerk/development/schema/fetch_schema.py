@@ -140,11 +140,11 @@ def generate_models_from_schema(
 ) -> str:
     """
     Generate Pydantic BaseModel classes from schema variables.
-    
+
     Args:
         variables: List of VariableData objects
         output_file: Optional path to write the generated code
-        
+
     Returns:
         Generated Python code as string
     """
@@ -189,11 +189,13 @@ def generate_models_from_schema(
     imports = [
         "from typing import List, Optional",
         "from pydantic import BaseModel",
-        "from clerk.development.schema import ClerkVariable"
+        "from clerk.development.schema import ClerkVariable",
     ]
 
     # Check if we need Literal
-    has_enums = any(var.type == VariableTypes.ENUM and var.enum_options for var in variables)
+    has_enums = any(
+        var.type == VariableTypes.ENUM and var.enum_options for var in variables
+    )
     if has_enums:
         imports[0] = "from typing import Any, List, Optional, Dict, Literal"
 
@@ -240,16 +242,25 @@ def generate_models_from_schema(
                     )
                     field_parts.append(f'description="{escaped_desc}"')
 
-                # Set default to None for leaf values, or use existing default
+                # Set defaults for all types
                 if is_leaf:
                     if var.default is not None:
                         field_parts.append(f"default={repr(var.default)}")
                     else:
                         field_parts.append("default=None")
-                elif var.is_array and var.default is None:
-                    field_parts.append("default_factory=list")
-                elif var.default is not None:
-                    field_parts.append(f"default={repr(var.default)}")
+                elif var.is_array:
+                    # Lists get default_factory=list
+                    if var.default is not None:
+                        field_parts.append(f"default={repr(var.default)}")
+                    else:
+                        field_parts.append("default_factory=list")
+                elif var.type == VariableTypes.OBJECT:
+                    # Objects become Optional with None default
+                    python_type = f"Optional[{python_type}]"
+                    if var.default is not None:
+                        field_parts.append(f"default={repr(var.default)}")
+                    else:
+                        field_parts.append("default=None")
 
                 clerk_args = [f'id="{var.id}"'] + field_parts
                 field_def = f"ClerkVariable({', '.join(clerk_args)})"
@@ -287,16 +298,25 @@ def generate_models_from_schema(
                 )
                 field_parts.append(f'description="{escaped_desc}"')
 
-            # Set default to None for leaf values, or use existing default
+            # Set defaults for all types
             if is_leaf:
                 if var.default is not None:
                     field_parts.append(f"default={repr(var.default)}")
                 else:
                     field_parts.append("default=None")
-            elif var.is_array and var.default is None:
-                field_parts.append("default_factory=list")
-            elif var.default is not None:
-                field_parts.append(f"default={repr(var.default)}")
+            elif var.is_array:
+                # Lists get default_factory=list
+                if var.default is not None:
+                    field_parts.append(f"default={repr(var.default)}")
+                else:
+                    field_parts.append("default_factory=list")
+            elif var.type == VariableTypes.OBJECT:
+                # Objects become Optional with None default
+                python_type = f"Optional[{python_type}]"
+                if var.default is not None:
+                    field_parts.append(f"default={repr(var.default)}")
+                else:
+                    field_parts.append("default=None")
 
             clerk_args = [f'id="{var.id}"'] + field_parts
             field_def = f"ClerkVariable({', '.join(clerk_args)})"
