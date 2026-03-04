@@ -185,19 +185,40 @@ def generate_models_from_schema(
     )
     code_lines.append(f"# Last fetched: {sync_timestamp}\n")
 
-    # Generate imports
-    imports = [
-        "from typing import List, Optional",
-        "from pydantic import BaseModel",
-        "from clerk.development.schema import ClerkVariable",
-    ]
+    # Generate imports based on types used
+    typing_imports = ["List", "Optional"]
+    datetime_imports = []
 
-    # Check if we need Literal
+    # Check what types are used
     has_enums = any(
         var.type == VariableTypes.ENUM and var.enum_options for var in variables
     )
+    has_date = any(var.type == VariableTypes.DATE for var in variables)
+    has_datetime = any(var.type == VariableTypes.DATETIME for var in variables)
+    has_time = any(var.type == VariableTypes.TIME for var in variables)
+    has_fallback_object = any(
+        var.type == VariableTypes.OBJECT and var.id not in nested_vars
+        for var in variables
+    )
+
     if has_enums:
-        imports[0] = "from typing import Any, List, Optional, Dict, Literal"
+        typing_imports.append("Literal")
+    if has_enums or has_fallback_object:
+        typing_imports.extend(["Any", "Dict"])
+    if has_date:
+        datetime_imports.append("date")
+    if has_datetime:
+        datetime_imports.append("datetime")
+    if has_time:
+        datetime_imports.append("time")
+
+    imports = [
+        f"from typing import {', '.join(typing_imports)}",
+        "from pydantic import BaseModel",
+        "from clerk.development.schema import ClerkVariable",
+    ]
+    if datetime_imports:
+        imports.insert(1, f"from datetime import {', '.join(datetime_imports)}")
 
     code_lines.extend(imports)
     code_lines.append("")
