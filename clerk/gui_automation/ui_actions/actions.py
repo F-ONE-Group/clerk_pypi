@@ -814,3 +814,47 @@ class PasteText(BaseAction):
             keys=self.keys,
         )
         return perform_action(execute_payload)
+
+
+class ClearClipboard(BaseAction):
+    """
+    ClearClipboard class represents a UI action for clearing the clipboard on the target machine.
+
+    Attributes:
+        action_type (Literal["clear_clipboard"]): Type of UI action to execute.
+
+    Methods:
+        do(): Executes the UI action to clear the clipboard.
+
+    Example:
+        # clear the clipboard
+        ClearClipboard().do()
+    """
+
+    action_type: Literal["clear_clipboard"] = "clear_clipboard"
+
+    def do(self) -> None:
+        execute_payload = ExecutePayload(action_type=self.action_type)
+        perform_action(execute_payload)
+
+
+class GetClipboard(BaseAction):
+    """
+    GetClipboard class represents a UI action for retrieving the contents of the clipboard on the target machine.
+
+    Attributes:
+        action_type (Literal["get_clipboard"]): Type of UI action to execute.
+
+    Methods:
+        do(): Executes the UI action and returns the clipboard contents as a string.
+
+    Example:
+        # get the clipboard contents
+        clipboard_text = GetClipboard().do()
+    """
+
+    action_type: Literal["get_clipboard"] = "get_clipboard"
+
+    def do(self) -> str:
+        execute_payload = ExecutePayload(action_type=self.action_type)
+        return perform_action(execute_payload)

@@ -11,8 +11,8 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
 
-from clerk.gui_automation.ui_actions.actions import (    
-    File, 
+from clerk.gui_automation.ui_actions.actions import (
+    File,
     LeftClick,
     RightClick,
     DoubleClick,
@@ -31,7 +31,9 @@ from clerk.gui_automation.ui_actions.actions import (
     ActivateWindow,
     GetText,
     PasteText,
-    BaseAction
+    BaseAction,
+    ClearClipboard,
+    GetClipboard,
 )
 from clerk.gui_automation.decorators import gui_automation
 from clerk.decorator.models import ClerkCodePayload, Document
