@@ -1,3 +1,4 @@
 include requirements.txt
 include clerk/gui_automation/requirements.txt
 include README.md
+include clerk/py.typed
