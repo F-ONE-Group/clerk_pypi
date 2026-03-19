@@ -865,24 +865,25 @@ class GetClipboard(BaseAction):
         return perform_action(execute_payload)
 
 
-class GetCitrixFile(BaseAction):
+class GetCitrixFiles(BaseAction):
     """
-    GetCitrixFile class represents a UI action for retrieving a file from a Citrix session.
+    GetCitrixFiles class represents a UI action for retrieving a file from a Citrix session.
     In order to use this action, the file needs to be available in the Citrix clipboard.
 
     Attributes:
-        action_type (Literal["get_citrix_file"]): Type of UI action to execute.
+        action_type (Literal["get_citrix_files"]): Type of UI action to execute.
 
     Methods:
         do(): Executes the UI action and returns the retrieved file as a File object.
 
     Example:
         # get a file from a Citrix session
-        citrix_file = GetCitrixFile().do()
+        citrix_file = GetCitrixFiles().do()
     """
 
-    action_type: Literal["get_citrix_file"] = "get_citrix_file"
+    action_type: Literal["get_citrix_files"] = "get_citrix_files"
 
-    def do(self) -> File:
+    def do(self) -> List[File]:
         payload = ExecutePayload(action_type=self.action_type)
-        return File(**perform_action(payload))
+        res = perform_action(payload)
+        return [File(**r) for r in res["files"]]
