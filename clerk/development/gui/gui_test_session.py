@@ -34,6 +34,7 @@ from clerk.gui_automation.ui_actions.actions import (
     BaseAction,
     ClearClipboard,
     GetClipboard,
+    GetCitrixFile,
 )
 from clerk.gui_automation.decorators import gui_automation
 from clerk.decorator.models import ClerkCodePayload, Document
