@@ -11,6 +11,13 @@ from rich.prompt import Confirm, Prompt
 console = Console()
 
 
+CLERK_BASE_URL_OPTIONS = {
+    "1": ("Clerk", "https://api.clerk-app.com"),
+    "2": ("F-One", "https://api.f-one.ai"),
+    "3": ("Neumann Customs", "https://api.neumanncustoms.com"),
+}
+
+
 def prompt_for_env_var(var_name: str, description: str, required: bool = True, default: str = "") -> str:
     """Prompt user for an environment variable value."""
     prompt_text = f"{var_name}"
@@ -22,6 +29,21 @@ def prompt_for_env_var(var_name: str, description: str, required: bool = True, d
         if value or not required:
             return value if value else ""
         console.print(f"[yellow]{var_name} is required. Please provide a value.[/yellow]")
+
+
+def prompt_for_base_url() -> str:
+    """Prompt user to select the Clerk API base URL."""
+    console.print("\n[cyan]Select Clerk domain:[/cyan]")
+    for option, (label, url) in CLERK_BASE_URL_OPTIONS.items():
+        console.print(f"  {option}. {label} ({url})")
+
+    selection = Prompt.ask(
+        "Domain",
+        choices=list(CLERK_BASE_URL_OPTIONS.keys()),
+        default="1",
+    )
+    _, base_url = CLERK_BASE_URL_OPTIONS[selection]
+    return base_url
 
 
 def create_env_file(gui_automation: bool = False) -> Dict[str, str]:
@@ -58,6 +80,10 @@ def create_env_file(gui_automation: bool = False) -> Dict[str, str]:
         if not Confirm.ask("\n[yellow].env file already exists. Overwrite?[/yellow]", default=False):
             console.print("[dim]Using existing .env file[/dim]")
             return load_env_file()
+
+    base_url = prompt_for_base_url()
+    env_content.append(f"CLERK_BASE_URL={base_url}")
+    env_values["CLERK_BASE_URL"] = base_url
     
     for var_name, (description, required, default) in env_vars.items():
         value = prompt_for_env_var(var_name, description, required, default)
