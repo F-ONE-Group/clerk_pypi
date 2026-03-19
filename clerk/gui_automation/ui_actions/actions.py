@@ -52,6 +52,11 @@ class File(BaseModel):
             return b64decode(v)
         return v
 
+    def to_base64(self) -> str:
+        import base64
+
+        return base64.standard_b64encode(self.content).decode()
+
     def save(self, path: str):
         if not os.path.exists(path):
             os.makedirs(path)

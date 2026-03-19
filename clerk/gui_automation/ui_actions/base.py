@@ -61,6 +61,9 @@ ActionTypes = Literal[
     "get_text",
     "paste_text",
     "scroll",
+    "get_clipboard",
+    "clear_clipboard",
+    "get_citrix_file",
 ]
 
 
