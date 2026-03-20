@@ -290,15 +290,15 @@ def build_payload_from_clerk_data(
     raw_document = client._get_document_internal(document_id)
 
     processor_runs = raw_document.get("processor_run_instances", [])
-    selected_run = next(
+    selected_run_id = next(
         (
-            run
+            run["id"]
             for run in processor_runs
             if isinstance(run, dict) and str(run.get("id", "")) == processor_run_id
         ),
         None,
     )
-    if selected_run is None:
+    if selected_run_id is None:
         available_run_ids = (
             ", ".join(
                 str(run.get("id"))
@@ -311,6 +311,8 @@ def build_payload_from_clerk_data(
             f"Processor run '{processor_run_id}' not found on document '{document_id}'. "
             f"Available run IDs: {available_run_ids}"
         )
+
+    selected_run = client._get_processor_run_internal(document_id, selected_run_id)
 
     structured_data_class = _load_structured_data_class(project_root)
     raw_input_structured_data = _normalize_input_structured_data(
