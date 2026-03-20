@@ -1,9 +1,12 @@
 """Code runner module for testing custom code with payloads."""
 
+import json
 import sys
 from pathlib import Path
 import importlib.util
+from typing import Any, Dict
 
+from pydantic import BaseModel
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Confirm, Prompt
@@ -16,7 +19,7 @@ from clerk.development.schema import deserialize_clerk_data
 console = Console()
 
 
-def _generate_structured_data_code(structured_data_class) -> str:
+def _generate_structured_data_code(structured_data_class: type[BaseModel]) -> str:
     """Generate code for StructuredData initialization with all fields.
 
     Args:
@@ -28,7 +31,7 @@ def _generate_structured_data_code(structured_data_class) -> str:
     from typing import get_origin, get_args
     from pydantic import BaseModel
 
-    lines = []
+    lines: list[str] = []
 
     # Get model fields
     if hasattr(structured_data_class, "model_fields"):
