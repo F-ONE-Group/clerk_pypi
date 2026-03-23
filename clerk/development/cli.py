@@ -126,6 +126,12 @@ def main():
         "run", help="Run custom code with local test payloads or Clerk data"
     )
 
+    # Code compile subcommand
+    code_compile_parser = code_subparsers.add_parser(
+        "compile",
+        help="Compile pyproject.toml dependencies to requirements.txt using uv",
+    )
+
     args = parser.parse_args()
 
     # Show help if no command specified
@@ -183,6 +189,30 @@ def main():
             from clerk.development.code_runner import main_with_args
 
             main_with_args(project_root)
+
+        elif args.code_command == "compile":
+            import subprocess
+
+            pyproject_path = project_root / "pyproject.toml"
+            requirements_path = project_root / "requirements.txt"
+
+            if not pyproject_path.exists():
+                print(f"Error: pyproject.toml not found in {project_root}")
+                sys.exit(1)
+
+            print(f"Compiling dependencies from {pyproject_path}...")
+            result = subprocess.run(
+                [
+                    "uv",
+                    "pip",
+                    "compile",
+                    str(pyproject_path),
+                    "-o",
+                    str(requirements_path),
+                ],
+                cwd=project_root,
+            )
+            sys.exit(result.returncode)
 
     elif args.command == "context-agent":
         from clerk.development.context_agent import main_with_args
