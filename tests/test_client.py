@@ -1,11 +1,9 @@
 from datetime import datetime
 from typing import Any, Dict, List
 
-import pytest
-
 from clerk.client import Clerk
+from clerk.models.dataset import DatasetDownload
 from clerk.models.document import (
-    Document,
     DocumentStatuses,
     GetDocumentsRequest,
     UploadDocumentRequest,
@@ -29,6 +27,49 @@ def make_document_payload(**overrides: Any) -> Dict[str, Any]:
         created_at=datetime.utcnow().isoformat(),
         updated_at=datetime.utcnow().isoformat(),
     )
+    base.update(overrides)
+    return base
+
+
+def make_dataset_payload(**overrides: Any) -> Dict[str, Any]:
+    base = {
+        "metadata": {
+            "id": "dataset-1",
+            "domain_id": "domain-1",
+            "organization_id": "org-1",
+            "project_id": "proj-1",
+            "type": "standard",
+            "display_name": "Test dataset",
+            "description": "Example dataset",
+            "created_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.utcnow().isoformat(),
+            "row_count": 1,
+        },
+        "columns": [
+            {
+                "id": "column-1",
+                "dataset_id": "dataset-1",
+                "name": "amount",
+                "display_name": "Amount",
+                "data_type": "number",
+                "position_index": 0,
+                "is_required": True,
+                "is_unique": False,
+                "created_at": datetime.utcnow().isoformat(),
+                "updated_at": datetime.utcnow().isoformat(),
+            }
+        ],
+        "rows": [
+            {
+                "id": "row-1",
+                "dataset_id": "dataset-1",
+                "position_index": 0,
+                "created_at": datetime.utcnow().isoformat(),
+                "updated_at": datetime.utcnow().isoformat(),
+                "values": {"amount": 42},
+            }
+        ],
+    }
     base.update(overrides)
     return base
 
@@ -87,6 +128,26 @@ def test_get_document(monkeypatch):
     document = clerk.get_document("doc-4")
 
     assert document.id == "doc-4"
+
+
+def test_get_dataset(monkeypatch):
+    clerk = Clerk(api_key="token")
+    captured: Dict[str, Any] = {}
+    payload = make_dataset_payload()
+
+    def fake_get(self: Clerk, endpoint: str):
+        captured.update(endpoint=endpoint)
+        return StandardResponse(data=[payload])
+
+    monkeypatch.setattr(Clerk, "get_request", fake_get)
+
+    dataset = clerk.get_dataset(dataset_id="dataset-1")
+
+    assert captured["endpoint"] == "/dataset/dataset-1"
+    assert isinstance(dataset, DatasetDownload)
+    assert dataset.metadata.id == "dataset-1"
+    assert dataset.columns[0].name == "amount"
+    assert dataset.rows[0].values == {"amount": 42}
 
 
 def test_get_document_internal_returns_raw_payload(monkeypatch):

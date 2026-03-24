@@ -1,6 +1,7 @@
 from typing import Any, Dict, List, Literal, cast
 
 from clerk.base import BaseClerk
+from clerk.models.dataset import DatasetDownload
 from clerk.models.document import Document, GetDocumentsRequest, UploadDocumentRequest
 from clerk.models.prevalidation import FileClassificationResponse
 from .models.file import ParsedFile, UploadFile
@@ -33,6 +34,11 @@ class Clerk(BaseClerk):
         endpoint = f"/document/{document_id}"
         res = self.get_request(endpoint=endpoint)
         return Document(**res.data[0])
+
+    def get_dataset(self, dataset_id: str) -> DatasetDownload:
+        endpoint = f"/dataset/{dataset_id}"
+        res = self.get_request(endpoint=endpoint)
+        return DatasetDownload.model_validate(res.data[0])
 
     def _get_document_internal(self, document_id: str) -> Dict[str, Any]:
         """Fetch raw document payload for internal SDK features.
