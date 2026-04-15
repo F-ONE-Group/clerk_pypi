@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Literal, cast
+from typing import Any, Dict, List, Literal, Optional, cast
 
 from clerk.base import BaseClerk
 from clerk.models.dataset import DatasetDownload
@@ -123,3 +123,19 @@ class Clerk(BaseClerk):
         if not res.data:
             return None
         return FileClassificationResponse(**res.data[0])
+
+    def create_task(
+        self,
+        document_id: str,
+        task_definition_id: str,
+        instructions: Optional[str] = None,
+    ) -> str:
+        endpoint = f"/document/{document_id}/create_task"
+        res = self.post_request(
+            endpoint,
+            json={
+                "task_definition_id": task_definition_id,
+                "instructions": instructions,
+            },
+        )
+        return cast(str, res.data[0])
